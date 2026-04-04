@@ -1,6 +1,6 @@
 {
   "name": "@avasis-ai/synthcode",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "SynthCode - Synthesize any LLM into a production-grade AI agent. Battle-tested agentic patterns, model-agnostic, TypeScript-first.",
   "type": "module",
   "main": "./dist/index.cjs",
