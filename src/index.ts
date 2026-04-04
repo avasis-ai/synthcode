@@ -29,9 +29,9 @@ export type { PermissionResult } from "./permissions/engine.js";
 export type { PermissionConfig } from "./types.js";
 
 export { createProvider, BaseProvider, RetryableError } from "./llm/index.js";
-export { AnthropicProvider, OpenAIProvider, OllamaProvider } from "./llm/index.js";
-export { anthropic, openai, ollama } from "./llm/index.js";
-export type { Provider, ChatRequest, ChatMessage } from "./llm/index.js";
+export { AnthropicProvider, OpenAIProvider, OllamaProvider, ClusterProvider } from "./llm/index.js";
+export { anthropic, openai, ollama, cluster } from "./llm/index.js";
+export type { Provider, ChatRequest, ChatMessage, ClusterConfig, ClusterSlot } from "./llm/index.js";
 
 export { HookRunner } from "./hooks.js";
 export type { AgentHooks } from "./hooks.js";

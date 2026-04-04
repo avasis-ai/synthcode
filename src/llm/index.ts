@@ -7,6 +7,8 @@ import { OpenAIProvider } from './openai.js';
 import type { OpenAIProviderConfig } from './openai.js';
 import { OllamaProvider } from './ollama.js';
 import type { OllamaProviderConfig } from './ollama.js';
+import { ClusterProvider } from './cluster.js';
+import type { ClusterConfig, ClusterSlot } from './cluster.js';
 
 export { BaseProvider, RetryableError } from './provider.js';
 export type { Provider, ChatRequest, ChatMessage, APIToolDefinition } from './provider.js';
@@ -16,6 +18,8 @@ export { OpenAIProvider } from './openai.js';
 export type { OpenAIProviderConfig } from './openai.js';
 export { OllamaProvider } from './ollama.js';
 export type { OllamaProviderConfig } from './ollama.js';
+export { ClusterProvider } from './cluster.js';
+export type { ClusterConfig, ClusterSlot } from './cluster.js';
 
 export function anthropic(config: AnthropicProviderConfig): AnthropicProvider {
   return new AnthropicProvider(config);
@@ -27,6 +31,10 @@ export function openai(config: OpenAIProviderConfig): OpenAIProvider {
 
 export function ollama(config: OllamaProviderConfig): OllamaProvider {
   return new OllamaProvider(config);
+}
+
+export function cluster(config?: Partial<ClusterConfig>): ClusterProvider {
+  return new ClusterProvider(config);
 }
 
 export interface CustomProviderConfig {
