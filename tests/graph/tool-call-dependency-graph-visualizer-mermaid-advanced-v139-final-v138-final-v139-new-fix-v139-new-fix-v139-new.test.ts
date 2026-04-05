@@ -1,52 +1,67 @@
 import { describe, it, expect } from "vitest";
-import { GraphContext } from "../src/graph/tool-call-dependency-graph-visualizer-mermaid-advanced-v139-final-v138-final-v139-new-fix-v139-new-fix-v139-new";
+import {
+  DependencyGraph,
+  GraphNode,
+  FlowControlType,
+} from "../src/graph/tool-call-dependency-graph-visualizer-mermaid-advanced-v139-final-v138-final-v139-new-fix-v139-new-fix-v139-new";
 
-describe("GraphContext", () => {
-  it("should correctly identify dependencies for a simple sequence of messages", () => {
-    const mockContext: GraphContext = {
-      messages: [
-        { type: "user", content: "Initial query" } as any,
-        { type: "assistant", content: "Tool call A" } as any,
-        { type: "tool_result", content: "Result A" } as any,
-      ],
-      getDependencies: (messageIndex: number) => {
-        if (messageIndex === 0) return { dependsOn: [] };
-        if (messageIndex === 1) return { dependsOn: [{ index: 0 }] };
-        if (messageIndex === 2) return { dependsOn: [{ index: 1 }] };
-        return { dependsOn: [] };
-      },
-    };
+describe("DependencyGraph", () => {
+  it("should correctly initialize with basic nodes and edges", () => {
+    const nodes: GraphNode[] = [
+      { id: "user1", type: "user", content: [{ type: "text", content: "Hello" }] }],
+      { id: "assistant1", type: "assistant", content: [{ type: "text", content: "Hi there" }] },
+    ];
+    const edges = [{ from: "user1", to: "assistant1" }];
+    const graph: DependencyGraph = { nodes, edges };
 
-    // Assuming a method like getDependencyGraph() exists or we test the context structure
-    // Since we don't have the full class/methods, we test the structure provided.
-    const dependenciesForMessage1 = mockContext.getDependencies(1);
-    expect(dependenciesForMessage1.dependsOn).toHaveLength(1);
-    expect(dependenciesForMessage1.dependsOn[0].index).toBe(0);
+    expect(graph.nodes).toHaveLength(2);
+    expect(graph.edges).toHaveLength(1);
+    expect(graph.nodes[0].id).toBe("user1");
+    expect(graph.edges[0].from).toBe("user1");
   });
 
-  it("should handle a scenario with no dependencies", () => {
-    const mockContext: GraphContext = {
-      messages: [{ type: "user", content: "Standalone query" }] as any[],
-      getDependencies: (messageIndex: number) => {
-        if (messageIndex === 0) return { dependsOn: [] };
-        return { dependsOn: [] };
+  it("should handle nodes with flow control details", () => {
+    const nodes: GraphNode[] = [
+      {
+        id: "decision",
+        type: "assistant",
+        content: [],
+        flowControl: {
+          type: "conditional",
+          details: {
+            condition: "success",
+            next_if_true: "success_path",
+            next_if_false: "failure_path",
+          },
+        },
       },
-    };
+    ];
+    const graph: DependencyGraph = { nodes, edges: [] };
 
-    const dependenciesForMessage0 = mockContext.getDependencies(0);
-    expect(dependenciesForMessage0.dependsOn).toEqual([]);
+    expect(graph.nodes[0].flowControl).toBeDefined();
+    expect(graph.nodes[0].flowControl!.type).toBe("conditional");
+    expect(graph.nodes[0].flowControl!.details).toEqual({
+      condition: "success",
+      next_if_true: "success_path",
+      next_if_false: "failure_path",
+    });
   });
 
-  it("should return empty dependencies for an out-of-bounds index", () => {
-    const mockContext: GraphContext = {
-      messages: [{ type: "user", content: "Query" }] as any[],
-      getDependencies: (messageIndex: number) => {
-        if (messageIndex === 0) return { dependsOn: [] };
-        return { dependsOn: [] }; // Default for invalid index
-      },
-    };
+  it("should correctly represent a sequential flow graph", () => {
+    const nodes: GraphNode[] = [
+      { id: "start", type: "user", content: [] },
+      { id: "step1", type: "assistant", content: [] },
+      { id: "step2", type: "tool", content: [] },
+    ];
+    const edges = [
+      { from: "start", to: "step1" },
+      { from: "step1", to: "step2" },
+    ];
+    const graph: DependencyGraph = { nodes, edges };
 
-    const dependenciesForMessage99 = mockContext.getDependencies(99);
-    expect(dependenciesForMessage99.dependsOn).toEqual([]);
+    expect(graph.nodes).toHaveLength(3);
+    expect(graph.edges).toHaveLength(2);
+    expect(graph.edges[0].from).toBe("start");
+    expect(graph.edges[1].to).toBe("step2");
   });
 });
