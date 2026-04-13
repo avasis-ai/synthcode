@@ -8,9 +8,9 @@ export {
   defineToolFromClass,
 } from "./tools/tool.js";
 export { ToolRegistry } from "./tools/registry.js";
-export { orchestrateTools } from "./tools/orchestrator.js";
+export { orchestrateTools, ToolVerifier } from "./tools/orchestrator.js";
 export type { Tool, ToolExecuteOptions, APIToolDefinition } from "./tools/tool.js";
-export type { ToolExecutionResult } from "./tools/orchestrator.js";
+export type { ToolExecutionResult, VerificationCheck, VerificationResult, VerificationRule, VerificationContext } from "./tools/orchestrator.js";
 export { BashTool } from "./tools/bash.js";
 export { FileReadTool } from "./tools/file-read.js";
 export { FileWriteTool } from "./tools/file-write.js";
@@ -18,6 +18,7 @@ export { FileEditTool } from "./tools/file-edit.js";
 export { GlobTool } from "./tools/glob.js";
 export { GrepTool } from "./tools/grep.js";
 export { WebFetchTool } from "./tools/web-fetch.js";
+export { fuzzyReplace, fuzzyContains, FuzzyEditError } from "./tools/fuzzy-edit.js";
 
 export { ContextManager } from "./context/manager.js";
 export { estimateTokens, estimateMessageTokens, estimateConversationTokens } from "./context/tokenizer.js";
@@ -78,3 +79,5 @@ export {
   DEFAULT_MAX_TURNS,
   MAX_CONCURRENT_TOOLS,
 } from "./types.js";
+
+export { CircuitBreaker } from "./circuit-breaker.js";

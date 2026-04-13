@@ -1,8 +1,8 @@
 export { defineTool, defineToolFromClass } from './tool.js';
 export type { Tool, ToolExecuteOptions, APIToolDefinition } from './tool.js';
 export { ToolRegistry } from './registry.js';
-export { orchestrateTools } from './orchestrator.js';
-export type { ToolExecutionResult } from './orchestrator.js';
+export { orchestrateTools, ToolVerifier } from './orchestrator.js';
+export type { ToolExecutionResult, VerificationCheck, VerificationResult, VerificationRule, VerificationContext, OrchestrateOptions } from './orchestrator.js';
 export { BashTool } from './bash.js';
 export { FileReadTool } from './file-read.js';
 export { FileWriteTool } from './file-write.js';

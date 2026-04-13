@@ -31,7 +31,6 @@ export class CircuitBreaker extends EventEmitter {
   }
 
   private transitionTo(newState: CircuitState): void {
-    console.log(`CircuitBreaker: Transitioning from ${this.state} to ${newState}`);
     this.state = newState;
     this.emit("stateChange", newState);
   }
@@ -67,19 +66,19 @@ export class CircuitBreaker extends EventEmitter {
     const now = Date.now();
 
     if (this.state === "OPEN") {
-      if (this.isCircuitOpen(now)) {
+      const timeSinceFailure = now - this.lastFailureTime;
+      if (timeSinceFailure >= this.options.resetTimeoutMs) {
+        this.transitionTo("HALF_OPEN");
         return { allowed: true, reason: "Circuit is half-open, attempting execution." };
-      } else {
-        const timeRemaining = this.options.resetTimeoutMs - (now - this.lastFailureTime);
-        return { allowed: false, reason: `Circuit is open. Try again in ${Math.ceil(timeRemaining / 1000)} seconds.` };
       }
+      const timeRemaining = this.options.resetTimeoutMs - timeSinceFailure;
+      return { allowed: false, reason: `Circuit is open. Try again in ${Math.ceil(timeRemaining / 1000)} seconds.` };
     }
 
     if (this.state === "HALF_OPEN") {
       return { allowed: true, reason: "Circuit is half-open, allowing one test call." };
     }
 
-    // State is CLOSED
     return { allowed: true, reason: "Circuit is closed, execution allowed." };
   }
 

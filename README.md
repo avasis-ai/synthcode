@@ -6,8 +6,9 @@
   <img src="https://img.shields.io/npm/v/@avasis-ai/synthcode?style=flat-square&color=black&logo=osi" alt="npm">
   <img src="https://img.shields.io/npm/l/@avasis-ai/synthcode?style=flat-square&color=black&logo=osi" alt="MIT">
   <img src="https://img.shields.io/badge/TypeScript-5.9+-3178C6?style=flat-square" alt="TypeScript">
-  <img src="https://img.shields.io/badge/95_tests-4CAF50?style=flat-square" alt="tests">
+  <img src="https://img.shields.io/badge/149_tests-4CAF50?style=flat-square" alt="tests">
   <img src="https://img.shields.io/badge/zero_deps-6C6C6C?style=flat-square" alt="zero deps">
+  <img src="https://img.shields.io/badge/38KB_ESM-000000?style=flat-square" alt="bundle">
   <img src="https://img.shields.io/badge/PRs_Welcome-brightgreen?style=flat-square&logo=osi" alt="PRs Welcome">
 </p>
 
@@ -97,6 +98,8 @@ User Prompt
 | Doom Loop Detection | Yes | Unknown | No | Unknown |
 | Sub-agent Delegation | Yes with isolation | Yes | No | Yes |
 | MCP Support | Yes | Yes | No | No |
+| Neuro-symbolic Verification | Yes | No | No | No |
+| Circuit Breaker | Yes | Unknown | No | Unknown |
 | Zero Runtime Deps | Yes | No | No | No |
 
 ## Tools
@@ -117,6 +120,41 @@ When an LLM's edit doesn't match exactly, SynthCode tries 8 fuzzy matching strat
 6. Escape-normalized (`\n` -> newline, `\"` -> quote)
 7. Trimmed boundary (trim the search string)
 8. Context-aware (first/last line anchors with proportional middle matching)
+
+### Neuro-Symbolic Verification
+
+Every tool call passes through a verification layer before execution. The `ToolVerifier` checks for:
+
+- **Dangerous commands** (`rm -rf /`, `dd`, `mkfs`, `format`)
+- **Path traversal** (`../` sequences in file paths)
+- **Secret exposure** (API keys, passwords, tokens in tool input)
+- **Destructive SQL** (`DROP TABLE`, `TRUNCATE`, `DELETE FROM`)
+- **Repetitive calls** (detects potential loops before they trigger doom detection)
+- **Binary writes** (catches attempts to write non-text content)
+
+```typescript
+import { ToolVerifier } from "@avasis-ai/synthcode";
+
+const verifier = new ToolVerifier();
+
+// Add custom rules
+verifier.addRule({
+  name: "no_writes_after_hours",
+  check: (toolName, input, ctx) => {
+    const hour = new Date().getHours();
+    if (hour >= 22 && ["file_write", "bash"].includes(toolName)) {
+      return { name: "no_writes_after_hours", passed: false, severity: "critical", message: "No writes after 10pm" };
+    }
+    return { name: "no_writes_after_hours", passed: true, severity: "info", message: "OK" };
+  },
+});
+
+const result = verifier.verify("bash", { command: "rm -rf /" }, { turnCount: 1, previousToolCalls: [], cwd: "/tmp" });
+// result.approved === false
+// result.rejectedBy === "dangerous_command"
+```
+
+Verifies at 4M ops/sec -- zero overhead in the hot path.
 
 ## Providers
 
@@ -191,15 +229,18 @@ const agent = new Agent({
   <img src="https://raw.githubusercontent.com/avasis-ai/synthcode/main/docs/images/benchmarks.png?v=7" alt="Benchmarks" width="800">
 </p>
 
-Measured on Apple M4 Pro, Node 22. These are real numbers from `npx @avasis-ai/synthcode test:benchmark`.
+Measured on Apple M4 Pro, Node 25. Run `npx tsx src/cli/benchmark.ts`.
 
 | Metric | Ops/sec |
 |--------|---------|
-| Token estimation (1KB) | 383K |
-| Context check (100 msgs) | 614K |
-| Tool registry lookup (10K) | 20M |
-| Permission check (10K) | 497M |
-| Compact (500 msgs) | 0.7ms |
+| Token estimation (1KB) | 16M |
+| Tool registry lookup (10K tools) | 128M |
+| Permission check (10K patterns) | 23K |
+| Fuzzy edit (exact match) | 5.3M |
+| Doom loop detection | 24.9M |
+| Neuro-symbolic verification | 4M |
+| Circuit breaker transition | 15.9M |
+| Context check (500 msgs) | 8K |
 
 ## Bundle Size
 
@@ -209,7 +250,7 @@ Measured on Apple M4 Pro, Node 22. These are real numbers from `npx @avasis-ai/s
 
 | Framework | ESM | Gzipped |
 |-----------|-----|---------|
-| **SynthCode** | **34KB** | **8.7KB** |
+| **SynthCode** | **38KB** | **9.7KB** |
 | OpenAI SDK | 100KB+ | 25KB+ |
 | Anthropic SDK | 500KB+ | 120KB+ |
 | Vercel AI SDK | 2MB+ | 400KB+ |
@@ -278,6 +319,7 @@ import {
   GlobTool, GrepTool, WebFetchTool,
   AnthropicProvider, OpenAIProvider, OllamaProvider,
   ContextManager, PermissionEngine, CostTracker,
+  ToolVerifier, CircuitBreaker,
   MCPClient, HookRunner,
   InMemoryStore, SQLiteStore,
 } from "@avasis-ai/synthcode";

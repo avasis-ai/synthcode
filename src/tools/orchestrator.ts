@@ -1,6 +1,10 @@
 import type { ToolContext, ToolUseBlock } from '../types.js';
 import type { Tool } from './tool.js';
 import { ToolRegistry } from './registry.js';
+import { ToolVerifier, type VerificationContext } from './verifier.js';
+
+export { ToolVerifier } from './verifier.js';
+export type { VerificationCheck, VerificationResult, VerificationRule, VerificationContext } from './verifier.js';
 
 /** Result of a single tool execution. */
 export interface ToolExecutionResult {
@@ -73,6 +77,8 @@ async function executeToolCall(
   context: ToolContext,
   permissionCheck?: (name: string, input: Record<string, unknown>) => Promise<boolean>,
   abortSignal?: AbortSignal,
+  verifier?: ToolVerifier,
+  verificationContext?: VerificationContext,
 ): Promise<ToolExecutionResult> {
   if (abortSignal?.aborted) {
     return {
@@ -122,6 +128,19 @@ async function executeToolCall(
       }
     }
 
+    if (verifier && verificationContext) {
+      const result = verifier.verify(call.name, parseResult.data as Record<string, unknown>, verificationContext);
+      if (!result.approved) {
+        return {
+          id: call.id,
+          name: call.name,
+          output: `Verification failed: ${result.reason ?? "unknown reason"}`,
+          isError: true,
+          durationMs: Math.round(performance.now() - start),
+        };
+      }
+    }
+
     const output = await tool.execute(parseResult.data, context);
 
     return {
@@ -143,12 +162,20 @@ async function executeToolCall(
   }
 }
 
+export interface OrchestrateOptions {
+  verifier?: ToolVerifier;
+  previousToolCalls?: Array<{ name: string; input: Record<string, unknown> }>;
+  turnCount?: number;
+}
+
 /**
  * Orchestrate execution of multiple tool calls with partition-based concurrency.
  *
  * Read-only, concurrency-safe tools are grouped into concurrent batches (max 10 parallel).
  * Non-safe tools are executed serially in their own batches.
  * Results are returned in the original call order.
+ *
+ * If a verifier is provided, each tool call is verified before execution.
  */
 export async function orchestrateTools(
   tools: ToolRegistry,
@@ -156,7 +183,9 @@ export async function orchestrateTools(
   context: ToolContext,
   permissionCheck?: (name: string, input: Record<string, unknown>) => Promise<boolean>,
   abortSignal?: AbortSignal,
+  options?: OrchestrateOptions,
 ): Promise<ToolExecutionResult[]> {
+  const verifier = options?.verifier;
   const batches = partitionToolCalls(toolCalls, tools);
   const results: ToolExecutionResult[] = [];
 
@@ -179,7 +208,7 @@ export async function orchestrateTools(
       const promises = batch.map((call) =>
         semaphore.acquire().then(async () => {
           try {
-            return await executeToolCall(call, tools, context, permissionCheck, abortSignal);
+            return await executeToolCall(call, tools, context, permissionCheck, abortSignal, verifier, buildVerificationContext(options));
           } finally {
             semaphore.release();
           }
@@ -201,10 +230,19 @@ export async function orchestrateTools(
         }
       }
     } else {
-      const result = await executeToolCall(batch[0], tools, context, permissionCheck, abortSignal);
+      const result = await executeToolCall(batch[0], tools, context, permissionCheck, abortSignal, verifier, buildVerificationContext(options));
       results.push(result);
     }
   }
 
   return results;
+}
+
+function buildVerificationContext(options?: OrchestrateOptions): VerificationContext | undefined {
+  if (!options?.verifier) return undefined;
+  return {
+    turnCount: options.turnCount ?? 0,
+    previousToolCalls: options.previousToolCalls ?? [],
+    cwd: process.cwd(),
+  };
 }

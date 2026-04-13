@@ -62,7 +62,7 @@ function truncateOutput(output: string, toolName: string, hasSubAgent: boolean):
   return truncated.trimEnd() + suffix;
 }
 
-function detectDoomLoop(messages: Message[]): ToolUseBlock | null {
+export function detectDoomLoop(messages: Message[]): ToolUseBlock | null {
   const recentToolCalls: ToolUseBlock[] = [];
   for (let i = messages.length - 1; i >= 0; i--) {
     const msg = messages[i];

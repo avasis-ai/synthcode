@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { CircuitBreaker } from "../src/circuit-breaker";
 
 describe("CircuitBreaker", () => {
@@ -9,23 +9,20 @@ describe("CircuitBreaker", () => {
 
   it("should transition to OPEN after exceeding failure threshold", async () => {
     const cb = new CircuitBreaker({ failureThreshold: 2, resetTimeoutMs: 100 });
-    // Simulate failures until OPEN
     await cb["recordFailure"]();
     await cb["recordFailure"]();
     expect(cb["state"]).toBe("OPEN");
   });
 
   it("should transition to HALF_OPEN after reset timeout and allow one test call", async () => {
-    const cb = new CircuitBreaker({ failureThreshold: 2, resetTimeoutMs: 50 });
-    // Force OPEN state (simulating enough failures)
+    const cb = new CircuitBreaker({ failureThreshold: 2, resetTimeoutMs: 10 });
     await cb["recordFailure"]();
     await cb["recordFailure"]();
     expect(cb["state"]).toBe("OPEN");
 
-    // Wait for timeout to transition to HALF_OPEN
-    jest.useFakeTimers();
-    jest.advanceTimersByTime(51);
-    await Promise.resolve(); // Allow state change event to process
+    await new Promise((r) => setTimeout(r, 50));
+    const result = cb.checkExecutionState();
+    expect(result.allowed).toBe(true);
     expect(cb["state"]).toBe("HALF_OPEN");
   });
 });
