@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { agentLoop } from "../src/loop.js";
 import { defineTool } from "../src/tools/tool.js";
 import { ToolRegistry } from "../src/tools/registry.js";
+import { ToolVerifier } from "../src/tools/verifier.js";
 import { ContextManager } from "../src/context/manager.js";
 import { PermissionEngine } from "../src/permissions/engine.js";
 import type { Provider } from "../src/llm/provider.js";
@@ -255,5 +256,85 @@ describe("agentLoop", () => {
     const events = await collectEvents(agentLoop(createLoopConfig({ model: provider })));
     const thinkingEvents = events.filter((e) => e.type === "thinking");
     expect(thinkingEvents.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("blocks dangerous tool calls when verifier is provided", async () => {
+    const bashTool = defineTool({
+      name: "bash",
+      description: "Run a shell command",
+      inputSchema: z.object({ command: z.string() }),
+      isReadOnly: false,
+      isConcurrencySafe: false,
+      execute: async ({ command }) => `ran: ${command}`,
+    });
+
+    const verifier = new ToolVerifier();
+    const provider = new MockProvider([
+      {
+        content: [
+          { type: "tool_use", id: "1", name: "bash", input: { command: "rm -rf /" } },
+        ],
+        usage: { inputTokens: 10, outputTokens: 5 },
+        stopReason: "tool_use",
+      },
+      {
+        content: [{ type: "text", text: "ok understood" }],
+        usage: { inputTokens: 10, outputTokens: 5 },
+        stopReason: "end_turn",
+      },
+    ]);
+
+    const tools = new ToolRegistry([bashTool]);
+    const events = await collectEvents(agentLoop({
+      ...createLoopConfig({ model: provider, tools }),
+      verifier,
+    }));
+
+    const toolResults = events.filter((e) => e.type === "tool_result");
+    expect(toolResults).toHaveLength(1);
+    if (toolResults[0].type === "tool_result") {
+      expect(toolResults[0].isError).toBe(true);
+      expect(toolResults[0].output).toContain("Verification failed");
+    }
+  });
+
+  it("allows safe tool calls when verifier is provided", async () => {
+    const bashTool = defineTool({
+      name: "bash",
+      description: "Run a shell command",
+      inputSchema: z.object({ command: z.string() }),
+      isReadOnly: false,
+      isConcurrencySafe: false,
+      execute: async ({ command }) => `ran: ${command}`,
+    });
+
+    const verifier = new ToolVerifier();
+    const provider = new MockProvider([
+      {
+        content: [
+          { type: "tool_use", id: "1", name: "bash", input: { command: "ls -la" } },
+        ],
+        usage: { inputTokens: 10, outputTokens: 5 },
+        stopReason: "tool_use",
+      },
+      {
+        content: [{ type: "text", text: "done" }],
+        usage: { inputTokens: 10, outputTokens: 5 },
+        stopReason: "end_turn",
+      },
+    ]);
+
+    const tools = new ToolRegistry([bashTool]);
+    const events = await collectEvents(agentLoop({
+      ...createLoopConfig({ model: provider, tools }),
+      verifier,
+    }));
+
+    const toolResults = events.filter((e) => e.type === "tool_result");
+    expect(toolResults).toHaveLength(1);
+    if (toolResults[0].type === "tool_result") {
+      expect(toolResults[0].isError).toBe(false);
+      expect(toolResults[0].output).toContain("ran: ls -la");
+    }
   });
 });

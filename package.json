@@ -1,6 +1,6 @@
 {
   "name": "@avasis-ai/synthcode",
-  "version": "1.0.324",
+  "version": "1.0.326",
   "description": "SynthCode - Synthesize any LLM into a production-grade AI agent. Battle-tested agentic patterns, model-agnostic, TypeScript-first.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -100,6 +100,12 @@
     },
     "zod": {
       "optional": true
+    },
+    "ink": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
     }
   },
   "devDependencies": {
@@ -132,5 +138,9 @@
     "type": "git",
     "url": "git+https://github.com/avasis-ai/synthcode.git"
   },
-  "homepage": "https://github.com/avasis-ai/synthcode#readme"
+  "homepage": "https://github.com/avasis-ai/synthcode#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
 }

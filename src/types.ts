@@ -78,6 +78,7 @@ export interface AgentConfig {
   permissions?: PermissionConfig;
   cwd?: string;
   maxRetries?: number;
+  verifier?: import("./tools/verifier.js").ToolVerifier;
 }
 
 export interface ContextConfig {

@@ -19,7 +19,7 @@ const PACKAGE_JSON = JSON.stringify(
       typecheck: "tsc --noEmit",
     },
     dependencies: {
-      "@avasis-ai/synthcode": "^0.6.0",
+      "@avasis-ai/synthcode": "^1.0.0",
       zod: "^3.24.0",
     },
     devDependencies: {

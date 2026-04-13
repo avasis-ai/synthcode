@@ -4,6 +4,7 @@ import { agentLoop } from "./loop.js";
 import { ToolRegistry } from "./tools/registry.js";
 import { defineTool } from "./tools/tool.js";
 import type { Tool } from "./tools/tool.js";
+import { ToolVerifier } from "./tools/verifier.js";
 import { ContextManager } from "./context/manager.js";
 import { PermissionEngine } from "./permissions/engine.js";
 import type { Provider } from "./llm/provider.js";
@@ -30,6 +31,7 @@ export class Agent {
   private contextManager: ContextManager;
   private permissionEngine: PermissionEngine;
   private permissionConfig?: PermissionConfig;
+  private verifier?: ToolVerifier;
   private cwd: string;
   private maxRetries: number;
   private messages: Message[] = [];
@@ -54,6 +56,7 @@ export class Agent {
     });
     this.permissionEngine = new PermissionEngine(config.permissions);
     this.permissionConfig = config.permissions;
+    this.verifier = config.verifier;
     this.cwd = config.cwd ?? process.cwd();
     this.maxRetries = config.maxRetries ?? 5;
 
@@ -151,6 +154,7 @@ export class Agent {
       maxRetries: this.maxRetries,
       hooks: this.hooks,
       costTracker: this.costTracker,
+      verifier: this.verifier,
     });
 
     const finalMessages: Message[] = [];

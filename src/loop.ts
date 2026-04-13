@@ -1,7 +1,8 @@
 import type { Message, ContentBlock, ToolUseBlock, LoopEvent, ToolContext, TokenUsage } from "./types.js";
 import { DEFAULT_MAX_TURNS } from "./types.js";
 import { ToolRegistry } from "./tools/registry.js";
-import { orchestrateTools } from "./tools/orchestrator.js";
+import { orchestrateTools, type OrchestrateOptions } from "./tools/orchestrator.js";
+import { ToolVerifier } from "./tools/verifier.js";
 import { ContextManager } from "./context/manager.js";
 import { PermissionEngine } from "./permissions/engine.js";
 import type { Provider } from "./llm/provider.js";
@@ -30,6 +31,7 @@ export interface AgentLoopConfig {
   maxRetries?: number;
   hooks?: AgentHooks;
   costTracker?: CostTracker;
+  verifier?: ToolVerifier;
 }
 
 function parseRetryAfterMs(error: Error): number | null {
@@ -97,6 +99,7 @@ export async function* agentLoop(config: AgentLoopConfig): AsyncGenerator<LoopEv
     abortSignal,
     hooks,
     costTracker,
+    verifier,
   } = config;
 
   const hookRunner = new HookRunner(hooks);
@@ -313,6 +316,12 @@ export async function* agentLoop(config: AgentLoopConfig): AsyncGenerator<LoopEv
       continue;
     }
 
+    const orchestrateOptions: OrchestrateOptions = {
+      verifier,
+      previousToolCalls: collectPreviousToolCalls(messages),
+      turnCount: turns,
+    };
+
     const results = await orchestrateTools(
       tools,
       toolCalls,
@@ -322,6 +331,7 @@ export async function* agentLoop(config: AgentLoopConfig): AsyncGenerator<LoopEv
         return perm.allowed;
       },
       abortSignal,
+      orchestrateOptions,
     );
 
     for (const result of results) {
@@ -352,6 +362,20 @@ export async function* agentLoop(config: AgentLoopConfig): AsyncGenerator<LoopEv
   }
 
   yield { type: "error", error: new Error(`Max turns (${maxTurns}) reached`) };
+
+  function collectPreviousToolCalls(msgs: Message[]): Array<{ name: string; input: Record<string, unknown> }> {
+    const calls: Array<{ name: string; input: Record<string, unknown> }> = [];
+    for (const m of msgs) {
+      if (m.role !== "assistant") continue;
+      if (typeof m.content === "string") continue;
+      for (const block of m.content) {
+        if (block.type === "tool_use") {
+          calls.push({ name: block.name, input: block.input });
+        }
+      }
+    }
+    return calls;
+  }
 
   function* flushInFlight(): Generator<LoopEvent, void, unknown> {
     if (inFlightText.length > 0) {
