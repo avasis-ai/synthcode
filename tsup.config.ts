@@ -13,6 +13,7 @@ export default defineConfig({
     "verify/index": "src/verify/index.ts",
     "model/index": "src/model/index.ts",
     "tui/index": "src/tui/index.ts",
+    "tui/app/index": "src/tui/app/index.tsx",
   },
   format: ["esm", "cjs"],
   dts: true,

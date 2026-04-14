@@ -40,6 +40,7 @@ Options:
   --system <prompt>      System prompt
   --cwd <dir>            Working directory (default: .)
   --json                 Output final result as JSON
+  tui                    Launch interactive TUI dashboard
   --help                 Show this help`);
   process.exit(0);
 }
@@ -48,6 +49,8 @@ if (args.includes("--help") || args.length === 0) usage();
 
 if (args[0] === "adapt") {
   import("./adapt.js").then(m => m.runAdaptCommand(args.slice(1))).catch(e => { console.error(e); process.exit(1); });
+} else if (args[0] === "tui") {
+  import("../tui/app/index.js").then(m => m.runTUI()).catch(e => { console.error(e); process.exit(1); });
 } else if (args[0] === "init") {
   import("./index.js").then(m => m.init({})).catch(e => { console.error(e); process.exit(1); });
 } else {

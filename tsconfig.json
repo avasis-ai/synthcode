@@ -7,7 +7,9 @@
     "outDir": "dist",
     "declaration": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "src/ui", "src/cli/benchmark.ts"]

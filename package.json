@@ -1,6 +1,6 @@
 {
   "name": "@avasis-ai/synthcode",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "SynthCode - Synthesize any LLM into a production-grade AI agent. Battle-tested agentic patterns, model-agnostic, TypeScript-first.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -106,6 +106,8 @@
   },
   "peerDependencies": {
     "@anthropic-ai/sdk": ">=0.30.0",
+    "@inkjs/ui": "^2.0.0",
+    "fullscreen-ink": "^0.1.0",
     "ink": "^7.0.0",
     "openai": "^4.70.0",
     "react": "^19.2.5",
@@ -113,6 +115,12 @@
   },
   "peerDependenciesMeta": {
     "@anthropic-ai/sdk": {
+      "optional": true
+    },
+    "@inkjs/ui": {
+      "optional": true
+    },
+    "fullscreen-ink": {
       "optional": true
     },
     "openai": {
@@ -162,5 +170,9 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
+  },
+  "dependencies": {
+    "@inkjs/ui": "^2.0.0",
+    "fullscreen-ink": "^0.1.0"
   }
 }
