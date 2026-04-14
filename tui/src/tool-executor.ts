@@ -1,11 +1,14 @@
 import { execSync, spawn } from "child_process"
 import * as fs from "fs"
 import * as path from "path"
-import { MorphClient } from "@morphllm/morphsdk"
 
 const MORPH_KEY = process.env.MORPH_API_KEY || ""
 const MORPH_BASE = "https://api.morphllm.com/v1"
-const morph = new MorphClient({ apiKey: MORPH_KEY })
+let morph: InstanceType<typeof import("@morphllm/morphsdk").MorphClient> | null = null
+function getMorph() {
+  if (!morph && MORPH_KEY) morph = new (require("@morphllm/morphsdk") as any).MorphClient({ apiKey: MORPH_KEY })
+  return morph
+}
 
 export type ToolResult = {
   tool: string
@@ -201,7 +204,9 @@ export async function warpGrep(
 ): Promise<ToolResult> {
   const start = Date.now()
   try {
-    const result = await morph.warpGrep.execute({
+    const m = getMorph()
+    if (!m) return { tool: "doc_search", success: false, output: "MORPH_API_KEY not set", gateVerdict: null, durationMs: Date.now() - start }
+    const result = await m.warpGrep.execute({
       searchTerm,
       repoRoot: path.resolve(repoRoot),
     })
