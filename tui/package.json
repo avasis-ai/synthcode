@@ -1,14 +1,32 @@
 {
-  "name": "synthcode-tui",
-  "version": "1.0.0",
+  "name": "@avasis-ai/synthcode-tui",
+  "version": "1.5.0",
+  "description": "SynthCode TUI — neurosymbolic coding platform control plane with symbolic gates, agentic chat, and multi-provider LLM support",
   "type": "module",
+  "bin": {
+    "synthcode-tui": "dist/main.js"
+  },
   "scripts": {
-    "dev": "bun run src/main.ts",
-    "build": "bun build src/main.ts --outdir dist --target bun"
+    "dev": "SYNTHCODE_API_KEY=${SYNTHCODE_API_KEY:-} MORPH_API_KEY=${MORPH_API_KEY:-} bun run src/main.ts",
+    "build": "bun build src/main.ts --outdir dist --target bun",
+    "test": "bun run /tmp/synthcode-test.ts",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": ["synthcode", "tui", "neurosymbolic", "ai-agent", "coding-assistant", "terminal", "opentui"],
+  "license": "MIT",
+  "author": "Avasis AI <abhay@avasis.ai>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avasis-ai/synthcode.git",
+    "directory": "tui"
+  },
+  "bugs": {
+    "url": "https://github.com/avasis-ai/synthcode/issues"
   },
   "dependencies": {
     "@morphllm/morphsdk": "^0.2.166",
-    "@opentui/core": "file:/tmp/opentui/packages/core",
-    "@opentui/core-darwin-arm64": "0.1.99"
-  }
+    "@opentui/core": "^0.1.99",
+    "@opentui/core-darwin-arm64": "^0.1.99"
+  },
+  "files": ["dist/", "src/", "bun.lock"]
 }
