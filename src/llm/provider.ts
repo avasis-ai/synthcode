@@ -1,9 +1,11 @@
 import type { ModelResponse, ContentBlock, TokenUsage, ProviderConfig } from '../types.js';
 import type { APIToolDefinition } from '../tools/tool.js';
+import type { StreamEvent } from '../stream.js';
 
 export interface Provider {
   readonly model: string;
   chat(request: ChatRequest): Promise<ModelResponse>;
+  chatStream?(request: ChatRequest): AsyncGenerator<StreamEvent>;
 }
 
 export interface ChatRequest {

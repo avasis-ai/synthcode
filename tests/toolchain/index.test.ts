@@ -1,15 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { ToolChainExecutor, ToolChainStep, ToolChainContext } from "../src/toolchain/index";
+import { ToolChainExecutor } from "../../src/toolchain/index.js";
+import type { ToolChainStep, ToolChainContext } from "../../src/toolchain/index.js";
 
 describe("ToolChainExecutor", () => {
-  it("should initialize correctly with an empty context", () => {
-    const executor = new ToolChainExecutor();
-    // Assuming there's a way to check internal state or methods that rely on initialization
-    // For this test, we'll just check if instantiation succeeds.
+  it("should initialize with steps", () => {
+    const executor = new ToolChainExecutor([]);
     expect(executor).toBeDefined();
   });
 
-  it("should execute a single tool step successfully", () => {
+  it("should execute a single tool step", async () => {
     const mockContext: ToolChainContext = {
       history: [],
       state: { initialData: "test" },
@@ -17,37 +16,40 @@ describe("ToolChainExecutor", () => {
     const mockStep: ToolChainStep = {
       toolName: "mockTool",
       inputMap: {
-        inputA: (context: Record<string, any>) => context.state.initialData,
+        inputA: (state: Record<string, any>) => state.initialData,
       },
     };
-    const executor = new ToolChainExecutor();
-    // Assuming executeStep returns the result or updates the context
-    const result = executor.executeStep(mockStep, mockContext);
+    const executor = new ToolChainExecutor([mockStep]);
+    const result = await executor.execute(mockContext);
     expect(result).toBeDefined();
+    expect(result.mockTool).toBeDefined();
   });
 
-  it("should handle multiple tool steps sequentially", () => {
-    const mockContext: ToolChainContext = {
-      history: [],
-      state: { initialData: "test" },
-    };
-    const mockStep1: ToolChainStep = {
-      toolName: "tool1",
-      inputMap: {
-        inputA: (context: Record<string, any>) => context.state.initialData,
+  it("should validate a valid chain", () => {
+    const steps: ToolChainStep[] = [
+      {
+        toolName: "tool1",
+        inputMap: {
+          inputA: (state: Record<string, any>) => state.foo,
+        },
       },
-    };
-    const mockStep2: ToolChainStep = {
-      toolName: "tool2",
-      inputMap: {
-        inputB: (context: Record<string, any>) => "nextValue",
+    ];
+    const result = ToolChainExecutor.validateChain(steps);
+    expect(result.isValid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it("should detect invalid input map", () => {
+    const steps: ToolChainStep[] = [
+      {
+        toolName: "tool1",
+        inputMap: {
+          inputA: "not a function" as any,
+        },
       },
-    };
-    const executor = new ToolChainExecutor();
-    // This test assumes executeStep updates the context or returns a final state
-    const finalResult = executor.executeStep(mockStep1, mockContext);
-    // A second call might use the updated context, but we test the flow conceptually.
-    // Since we don't know the exact return/update mechanism, we test the execution path.
-    expect(finalResult).toBeDefined();
+    ];
+    const result = ToolChainExecutor.validateChain(steps);
+    expect(result.isValid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
   });
 });

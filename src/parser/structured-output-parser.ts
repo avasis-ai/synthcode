@@ -1,4 +1,10 @@
-import { JSONSchemaType } from "json-schema-to-typescript";
+export interface StructuredOutputSchema {
+  type: string;
+  properties?: Record<string, StructuredOutputSchema>;
+  required?: string[];
+  items?: StructuredOutputSchema;
+  [key: string]: unknown;
+}
 
 export type Message = UserMessage | AssistantMessage | ToolResultMessage;
 
@@ -44,59 +50,50 @@ export type LoopEvent =
   | { type: "tool_use"; id: string; name: string; input: Record<string, unknown> };
 
 export interface StructuredOutputParser {
-  parse(schema: Record<string, any>, rawResponse: string): Promise<unknown>;
-  validate(data: unknown, schema: Record<string, any>): boolean;
+  parse(schema: StructuredOutputSchema, rawResponse: string): Promise<unknown>;
+  validate(data: unknown, schema: StructuredOutputSchema): boolean;
 }
 
 export class StructuredOutputParserImpl implements StructuredOutputParser {
-  private async fixJson(schema: Record<string, any>, rawResponse: string): Promise<unknown> {
-    // In a real-world scenario, this would involve calling an LLM API
-    // with a prompt like: "The following text is supposed to be JSON matching schema X.
-    // Please correct it: [rawResponse]"
-    // For this implementation, we simulate a fix by attempting a simple cleanup
-    // and assuming the LLM call succeeds if the initial parse fails.
-
+  private async fixJson(schema: StructuredOutputSchema, rawResponse: string): Promise<unknown> {
     console.warn("Simulating LLM call to fix JSON structure based on schema.");
     try {
-      // Simple heuristic: remove common markdown wrappers if they are the only issue
       let cleanedResponse = rawResponse.trim();
-      if (cleanedResponse.startsWith("json")) {
+      if (cleanedResponse.startsWith("```json")) {
         cleanedResponse = cleanedResponse.substring(7).trim();
       }
-      if (cleanedResponse.endsWith("")) {
+      if (cleanedResponse.endsWith("```")) {
         cleanedResponse = cleanedResponse.substring(0, cleanedResponse.length - 3).trim();
       }
       return JSON.parse(cleanedResponse);
-    } catch (e) {
+    } catch {
       throw new Error("Failed to fix JSON structure even after heuristic cleanup.");
     }
   }
 
-  public async parse(schema: Record<string, any>, rawResponse: string): Promise<unknown> {
+  public async parse(schema: StructuredOutputSchema, rawResponse: string): Promise<unknown> {
     try {
-      // 1. Attempt direct JSON parsing
-      const parsed = JSON.parse(rawResponse);
-      return parsed;
-    } catch (e) {
+      return JSON.parse(rawResponse);
+    } catch {
       console.error("Initial JSON parsing failed. Attempting structural fix.");
-      // 2. Fallback to structural fixing mechanism
       return this.fixJson(schema, rawResponse);
     }
   }
 
-  public validate(data: unknown, schema: Record<string, any>): boolean {
-    // Use a library like 'ajv' in a real scenario.
-    // Since we cannot use external dependencies, we will provide a placeholder
-    // that relies on the existence of the schema structure for demonstration.
-    try {
-      // This simulates validation by checking if the data structure matches
-      // the expected types derived from the schema structure.
-      const schemaType = JSONSchemaType<unknown>(schema);
-      const validatedData = schemaType(data);
-      return validatedData !== null;
-    } catch (e) {
-      return false;
+  public validate(data: unknown, schema: StructuredOutputSchema): boolean {
+    if (typeof data === "undefined" || data === null) return false;
+    if (schema.type === "object" && typeof data !== "object") return false;
+    if (schema.type === "string" && typeof data !== "string") return false;
+    if (schema.type === "number" && typeof data !== "number") return false;
+    if (schema.type === "boolean" && typeof data !== "boolean") return false;
+    if (schema.type === "array" && !Array.isArray(data)) return false;
+    if (schema.required && typeof data === "object" && data !== null) {
+      const obj = data as Record<string, unknown>;
+      for (const key of schema.required) {
+        if (!(key in obj)) return false;
+      }
     }
+    return true;
   }
 }
 

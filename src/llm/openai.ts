@@ -1,6 +1,7 @@
 import type { ModelResponse, ContentBlock, TextBlock, ToolUseBlock, TokenUsage, ProviderConfig } from '../types.js';
 import type { ChatRequest, ChatMessage, APIToolDefinition } from './provider.js';
 import { BaseProvider, RetryableError } from './provider.js';
+import type { StreamEvent } from '../stream.js';
 
 export interface OpenAIProviderConfig extends ProviderConfig {
   apiKey: string;
@@ -8,11 +9,37 @@ export interface OpenAIProviderConfig extends ProviderConfig {
   organization?: string;
 }
 
+interface OpenAIChatResponse {
+  choices: Array<{
+    message: {
+      content?: string;
+      tool_calls?: Array<{
+        id: string;
+        function: { name: string; arguments: string };
+      }>;
+    };
+    finish_reason: string;
+  }>;
+  usage: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    prompt_tokens_details?: { cached_tokens?: number };
+  };
+}
+
+interface OpenAIClient {
+  chat: {
+    completions: {
+      create(body: unknown, options?: unknown): Promise<unknown>;
+    };
+  };
+}
+
 export class OpenAIProvider extends BaseProvider {
   private readonly apiKey: string;
   private readonly baseURL?: string;
   private readonly organization?: string;
-  private client: any = null;
+  private client: OpenAIClient | null = null;
 
   constructor(config: OpenAIProviderConfig) {
     super(config);
@@ -55,12 +82,41 @@ export class OpenAIProvider extends BaseProvider {
     const reqOptions: Record<string, unknown> = {};
     if (request.abortSignal) reqOptions.signal = request.abortSignal;
 
-    let response: any;
     try {
-      response = await this.client.chat.completions.create(body, reqOptions);
+      const response = (await this.client.chat.completions.create(body, reqOptions)) as OpenAIChatResponse;
+
+    const choice = response.choices[0];
+    const content: ContentBlock[] = [];
+
+    if (choice.message.content) {
+      content.push({ type: 'text', text: choice.message.content } as TextBlock);
+    }
+
+    if (choice.message.tool_calls) {
+      for (const tc of choice.message.tool_calls) {
+        let input: Record<string, unknown> = {};
+        try {
+          input = JSON.parse(tc.function.arguments);
+        } catch {
+          console.warn(`Failed to parse tool call arguments for ${tc.function.name}: ${tc.function.arguments?.slice(0, 100)}`);
+        }
+        content.push({
+          type: 'tool_use',
+          id: tc.id,
+          name: tc.function.name,
+          input,
+        } as ToolUseBlock);
+      }
+    }
+
+    return {
+      content,
+      usage: this.mapUsage(response.usage),
+      stopReason: this.mapStopReason(choice.finish_reason),
+    };
     } catch (err: unknown) {
-      const status = (err as any)?.status;
-      const code = (err as any)?.code;
+      const status = (err as { status?: number })?.status;
+      const code = (err as { code?: string })?.code;
       const isNetwork =
         err instanceof TypeError ||
         (typeof code === 'string' &&
@@ -77,34 +133,105 @@ export class OpenAIProvider extends BaseProvider {
         err instanceof Error ? { cause: err } : undefined,
       );
     }
+  }
 
-    const choice = response.choices[0];
-    const content: ContentBlock[] = [];
+  async *chatStream(request: ChatRequest): AsyncGenerator<StreamEvent> {
+    const OpenAI = (await import('openai')).default;
 
-    if (choice.message.content) {
-      content.push({ type: 'text', text: choice.message.content } as TextBlock);
+    if (!this.client) {
+      const opts: Record<string, unknown> = { apiKey: this.apiKey };
+      if (this.baseURL) opts.baseURL = this.baseURL;
+      if (this.organization) opts.organization = this.organization;
+      this.client = new OpenAI(opts);
     }
 
-    if (choice.message.tool_calls) {
-      for (const tc of choice.message.tool_calls) {
-        let input: Record<string, unknown> = {};
-        try {
-          input = JSON.parse(tc.function.arguments);
-        } catch {}
-        content.push({
-          type: 'tool_use',
-          id: tc.id,
-          name: tc.function.name,
-          input,
-        } as ToolUseBlock);
-      }
+    const mappedMessages = this.mapMessages(request.messages);
+    const messages: unknown[] = [];
+    if (request.systemPrompt) {
+      messages.push({ role: 'system', content: request.systemPrompt });
     }
+    messages.push(...mappedMessages);
 
-    return {
-      content,
-      usage: this.mapUsage(response.usage),
-      stopReason: this.mapStopReason(choice.finish_reason),
+    const tools = this.mapTools(request.tools);
+    const maxTokens = request.maxOutputTokens ?? this.maxOutputTokens;
+    const temperature = request.temperature ?? this.temperature;
+
+    const body: Record<string, unknown> = {
+      model: this.model,
+      messages,
+      stream: true,
     };
+    if (tools) body.tools = tools;
+    if (maxTokens !== undefined) body.max_tokens = maxTokens;
+    if (temperature !== undefined) body.temperature = temperature;
+
+    const reqOptions: Record<string, unknown> = {};
+    if (request.abortSignal) reqOptions.signal = request.abortSignal;
+
+    const toolCallAccumulators: Map<number, { id: string; name: string; arguments: string }> = new Map();
+    let usage: TokenUsage | undefined;
+
+    try {
+      const stream = (this.client as any).chat.completions.create(body, reqOptions) as AsyncIterable<any>;
+
+      for await (const chunk of stream) {
+        const choice = chunk.choices?.[0];
+        if (!choice) continue;
+
+        const delta = choice.delta;
+        if (delta?.content) {
+          yield { type: "text_delta", text: delta.content };
+        }
+
+        if (delta?.tool_calls) {
+          for (const tc of delta.tool_calls) {
+            const idx = tc.index as number;
+            if (!toolCallAccumulators.has(idx)) {
+              toolCallAccumulators.set(idx, {
+                id: tc.id ?? "",
+                name: tc.function?.name ?? "",
+                arguments: "",
+              });
+              if (tc.id) {
+                yield { type: "tool_use_start", id: tc.id, name: tc.function?.name ?? "" };
+              }
+            }
+            const acc = toolCallAccumulators.get(idx)!;
+            if (tc.id) acc.id = tc.id;
+            if (tc.function?.name) acc.name = tc.function.name;
+            if (tc.function?.arguments) {
+              acc.arguments += tc.function.arguments;
+              yield { type: "tool_use_delta", id: acc.id, input: tc.function.arguments };
+            }
+          }
+        }
+
+        if (choice.finish_reason) {
+          if (chunk.usage) {
+            usage = this.mapUsage(chunk.usage);
+          }
+          yield { type: "done", usage };
+        }
+      }
+    } catch (err: unknown) {
+      const status = (err as { status?: number })?.status;
+      const code = (err as { code?: string })?.code;
+      const isNetwork =
+        err instanceof TypeError ||
+        (typeof code === 'string' &&
+          ['ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT'].includes(code));
+
+      if (status === 429 || isNetwork) {
+        throw new RetryableError(
+          err instanceof Error ? err.message : String(err),
+          err instanceof Error ? err : undefined,
+        );
+      }
+      throw new Error(
+        `OpenAI API error: ${err instanceof Error ? err.message : String(err)}`,
+        err instanceof Error ? { cause: err } : undefined,
+      );
+    }
   }
 
   protected mapMessages(messages: ChatMessage[]): unknown[] {

@@ -10,7 +10,6 @@ import {
 } from "../tui/index.js";
 import { styled, C, type Style, terminalWidth } from "../tui/ansi.js";
 import { panel, rule } from "../tui/panel.js";
-import { panel } from "../tui/panel.js";
 import { ROUNDED, THICK } from "../tui/symbols.js";
 import { benchmarkBar, gauge } from "../tui/bar.js";
 

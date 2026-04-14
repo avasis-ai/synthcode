@@ -1,24 +1,25 @@
 import { describe, it, expect } from "vitest";
-import { StructuredOutputParser } from "../src/parser/structured-output-parser";
+import { StructuredOutputParserImpl } from "../../src/parser/structured-output-parser.js";
 
 describe("StructuredOutputParser", () => {
-  it("should correctly parse a simple JSON string into an object", () => {
-    const jsonString = '{"key": "value", "number": 123}';
-    const parser = new StructuredOutputParser();
-    const result = parser.parse(jsonString);
-    expect(result).toEqual({ key: "value", number: 123 });
+  const parser = new StructuredOutputParserImpl();
+  const schema = { type: "object", properties: { key: { type: "string" } } };
+
+  it("should parse valid JSON", async () => {
+    const result = await parser.parse(schema, '{"key": "value"}');
+    expect(result).toEqual({ key: "value" });
   });
 
-  it("should handle empty JSON strings gracefully", () => {
-    const jsonString = '{}';
-    const parser = new StructuredOutputParser();
-    const result = parser.parse(jsonString);
+  it("should parse empty JSON object", async () => {
+    const result = await parser.parse(schema, '{}');
     expect(result).toEqual({});
   });
 
-  it("should throw an error for invalid JSON strings", () => {
-    const jsonString = '{"key": "value",}'; // Trailing comma makes it invalid JSON
-    const parser = new StructuredOutputParser();
-    expect(() => parser.parse(jsonString)).toThrow(SyntaxError);
+  it("should validate correct data against schema", () => {
+    expect(parser.validate({ key: "value" }, schema)).toBe(true);
+  });
+
+  it("should reject null against object schema", () => {
+    expect(parser.validate(null, schema)).toBe(false);
   });
 });

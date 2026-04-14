@@ -5,3 +5,7 @@ dist/
 .env
 .env.local
 coverage/
+.cache/
+scripts/monitor-expensify.sh
+.cache/
+scripts/monitor-expensify.sh

@@ -21,6 +21,12 @@ export type { OllamaProviderConfig } from './ollama.js';
 export { ClusterProvider } from './cluster.js';
 export type { ClusterConfig, ClusterSlot } from './cluster.js';
 
+export { TieredRouter, DEFAULT_TOOL_TIER_MAP } from './router.js';
+export type { TieredRouterConfig, ModelTier, RouterStats } from './router.js';
+
+export { MODEL_COSTS, estimateRequestCost } from './cost-table.js';
+export type { ModelCost } from './cost-table.js';
+
 export function anthropic(config: AnthropicProviderConfig): AnthropicProvider {
   return new AnthropicProvider(config);
 }

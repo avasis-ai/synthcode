@@ -35,6 +35,7 @@ Options:
   --ollama <model>       Use Ollama (default: qwen3:32b)
   --anthropic <model>    Use Anthropic (default: claude-sonnet-4-20250514)
   --openai <model>       Use OpenAI (default: gpt-4o)
+  --google <model>       Use Google Gemini (default: gemini-2.5-flash)
   --max-turns <n>        Max agentic turns (default: 50)
   --system <prompt>      System prompt
   --cwd <dir>            Working directory (default: .)
@@ -81,6 +82,19 @@ function resolveProvider(flags: string[]) {
       process.exit(1);
     }
     return new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY, model });
+  }
+  if (hasFlag(flags, "--google")) {
+    const model = getFlag(flags, "--google") ?? "gemini-2.5-flash";
+    const key = process.env.GOOGLE_API_KEY;
+    if (!key) {
+      console.error("Error: GOOGLE_API_KEY not set");
+      process.exit(1);
+    }
+    return new OpenAIProvider({
+      apiKey: key,
+      model,
+      baseURL: "https://generativelanguage.googleapis.com/v1beta/openai",
+    });
   }
   if (hasFlag(flags, "--model")) {
     return new OllamaProvider({ model: getFlag(flags, "--model")! });

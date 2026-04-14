@@ -7,6 +7,7 @@ import type { Tool } from "./tools/tool.js";
 import { ToolVerifier } from "./tools/verifier.js";
 import type { DualPathVerifier } from "./verify/router.js";
 import { ContextManager } from "./context/manager.js";
+import { ProjectContext } from "./context/project-context.js";
 import { PermissionEngine } from "./permissions/engine.js";
 import type { Provider } from "./llm/provider.js";
 import type { AgentHooks } from "./hooks.js";
@@ -22,6 +23,7 @@ export interface AgentConfigV2 extends AgentConfig {
   costTracker?: CostTracker;
   title?: string;
   disableTitle?: boolean;
+  projectDir?: string;
 }
 
 export class Agent {
@@ -45,6 +47,7 @@ export class Agent {
   private _title?: string;
   private _titleFetched = false;
   private _disableTitle = false;
+  private projectContext?: ProjectContext;
 
   constructor(config: AgentConfig | AgentConfigV2) {
     this.model = config.model;
@@ -70,6 +73,11 @@ export class Agent {
     this.costTracker = v2.costTracker ?? new CostTrackerImpl();
     this._title = v2.title;
     this._disableTitle = v2.disableTitle ?? false;
+
+    const projectDir = v2.projectDir ?? config.cwd;
+    if (projectDir) {
+      this.projectContext = new ProjectContext(projectDir);
+    }
   }
 
   addTool(tool: Tool): void {
@@ -138,7 +146,16 @@ export class Agent {
 
   async *run(prompt: string, options?: { abortSignal?: AbortSignal }): AsyncGenerator<LoopEvent> {
     await this.loadMemory();
-    const loopMessages = [...this.messages, { role: "user" as const, content: prompt }];
+
+    const isFirstRun = this.messages.length === 0;
+    let effectivePrompt = prompt;
+
+    if (isFirstRun && this.projectContext) {
+      const projectInfo = this.projectContext.getProjectContextString();
+      effectivePrompt = `[Project Context]\n${projectInfo}\n\n[User Request]\n${prompt}`;
+    }
+
+    const loopMessages = [...this.messages, { role: "user" as const, content: effectivePrompt }];
 
     if (!this._titleFetched && this.messages.length === 0 && !this._disableTitle) {
       this._titleFetched = true;

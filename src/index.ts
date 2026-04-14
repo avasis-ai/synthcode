@@ -24,6 +24,9 @@ export { ContextManager } from "./context/manager.js";
 export { estimateTokens, estimateMessageTokens, estimateConversationTokens } from "./context/tokenizer.js";
 export type { TokenCount } from "./context/tokenizer.js";
 export type { ContextCheck } from "./context/manager.js";
+export { ProjectContext } from "./context/project-context.js";
+export { CodebaseIndexer } from "./context/indexer.js";
+export type { SymbolEntry, ImportEntry, FileEntry, CodebaseIndex } from "./context/indexer.js";
 
 export { PermissionEngine } from "./permissions/engine.js";
 export type { PermissionResult } from "./permissions/engine.js";
@@ -47,6 +50,9 @@ export type { MemoryStore } from "./memory/index.js";
 export { CostTracker } from "./cost/index.js";
 export { DEFAULT_PRICING } from "./cost/index.js";
 export type { CostRecord, ModelPricing } from "./cost/index.js";
+
+export { TieredRouter } from "./llm/router.js";
+export type { TieredRouterConfig, ModelTier, RouterStats } from "./llm/router.js";
 
 export { MCPClient, loadMCPTools } from "./mcp/index.js";
 export type { MCPServerConfig, MCPToolDefinition } from "./mcp/index.js";
@@ -106,3 +112,13 @@ export type {
   ToolOperation,
   RoutingPolicy,
 } from "./verify/index.js";
+
+export { FixLoop } from "./loop/index.js";
+export type {
+  FixLoopConfig,
+  ParsedError as FixLoopParsedError,
+  VerificationResult as FixLoopVerificationResult,
+  FixLoopResult,
+  FixIteration,
+  FixLoopEvent,
+} from "./loop/index.js";

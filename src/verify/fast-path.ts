@@ -1,29 +1,6 @@
 import type { FastPathResult, Verdict } from "./types.js";
 import type { ToolOperation } from "./types.js";
-
-const DANGEROUS_PATTERNS: RegExp[] = [
-  /\brm\s+-rf\s+\//,
-  /\bdd\s+if=/,
-  /\bformat\s+[A-Z]:/i,
-  /\bshutdown\b/,
-  /\breboot\b/,
-  /\bmkfs\b/,
-  /\b:\s*\(\)\s*\{\s*:\s*\|\s*:\s*&\s*\}\s*;/,
-];
-
-const PATH_TRAVERSAL: RegExp[] = [
-  /\.\.\//,
-  /\.\.\\/,
-];
-
-const SECRET_PATTERNS: RegExp[] = [
-  /(?:password|passwd|secret|token|api[_-]?key)\s*[:=]\s*["'][^"']{8,}/i,
-  /sk-[a-zA-Z0-9]{20,}/,
-  /ghp_[a-zA-Z0-9]{30,}/,
-  /AKIA[A-Z0-9]{16}/,
-];
-
-const DESTRUCTIVE_SQL: string[] = ["DROP TABLE", "TRUNCATE", "DELETE FROM"];
+import { DANGEROUS_PATTERNS, PATH_TRAVERSAL, SECRET_PATTERNS, DESTRUCTIVE_COMMANDS } from "./patterns.js";
 
 export function runFastPath(operation: ToolOperation, turnCount: number, previousCalls: Array<{ name: string; input: Record<string, unknown> }>): FastPathResult {
   const start = performance.now();
@@ -93,7 +70,7 @@ function checkDestructiveSQL(op: ToolOperation): FastPathResult["checks"][0] {
     return { rule: "destructive_sql", passed: true, severity: "info", message: "N/A" };
   }
   const command = String(op.input.command ?? "").toUpperCase();
-  for (const pattern of DESTRUCTIVE_SQL) {
+  for (const pattern of DESTRUCTIVE_COMMANDS) {
     if (command.includes(pattern)) {
       return { rule: "destructive_sql", passed: false, severity: "critical", message: `Destructive SQL: ${pattern}` };
     }

@@ -81,7 +81,7 @@ function selectSlots(config: ClusterConfig, complexity: Complexity): { planner?:
 
 async function callModel(slot: ClusterSlot, request: ChatRequest, baseURL: string, timeoutMs: number, extraOpts?: Record<string, unknown>): Promise<CallResult> {
   const url = (slot.baseURL || baseURL) + "/chat/completions";
-  const messages: any[] = [];
+  const messages: Array<Record<string, unknown>> = [];
 
   if (request.systemPrompt) {
     messages.push({ role: "system", content: request.systemPrompt });
@@ -95,7 +95,7 @@ async function callModel(slot: ClusterSlot, request: ChatRequest, baseURL: strin
     if (m.role === "assistant" && Array.isArray(m.content)) {
       const textParts = (m.content as ContentBlock[]).filter(b => b.type === "text");
       const toolParts = (m.content as ContentBlock[]).filter(b => b.type === "tool_use");
-      const msg: any = {};
+      const msg: Record<string, unknown> = {};
       if (textParts.length) msg.content = textParts.map(p => (p as { text: string }).text).join("");
       if (toolParts.length) {
         msg.tool_calls = toolParts.map(b => {
@@ -110,7 +110,7 @@ async function callModel(slot: ClusterSlot, request: ChatRequest, baseURL: strin
     messages.push({ role: m.role, content: m.content });
   }
 
-  const body: any = {
+  const body: Record<string, unknown> = {
     model: slot.model,
     messages,
     stream: false,
@@ -366,6 +366,7 @@ export class ClusterProvider implements Provider {
       this.stats.byModel[slot.model] = (this.stats.byModel[slot.model] || 0) + 1;
       return result;
     } catch (e) {
+      console.warn(`Cluster safeCall failed for slot ${slot.model}: ${e instanceof Error ? e.message : String(e)}`);
       return null;
     }
   }

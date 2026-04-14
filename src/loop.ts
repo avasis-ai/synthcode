@@ -2,7 +2,7 @@ import type { Message, ContentBlock, ToolUseBlock, LoopEvent, ToolContext, Token
 import { DEFAULT_MAX_TURNS } from "./types.js";
 import { ToolRegistry } from "./tools/registry.js";
 import { orchestrateTools, type OrchestrateOptions } from "./tools/orchestrator.js";
-import { ToolVerifier } from "./tools/verifier.js";
+import type { ToolVerifier } from "./tools/verifier.js";
 import type { DualPathVerifier } from "./verify/router.js";
 import { ContextManager } from "./context/manager.js";
 import { PermissionEngine } from "./permissions/engine.js";
@@ -171,6 +171,7 @@ export async function* agentLoop(config: AgentLoopConfig): AsyncGenerator<LoopEv
     inFlightToolCalls = [];
 
     let response;
+    let textAlreadyYielded = false;
     try {
       const mappedMessages = messages.map((m) => {
         if (m.role === "tool") {
@@ -200,13 +201,71 @@ export async function* agentLoop(config: AgentLoopConfig): AsyncGenerator<LoopEv
         };
       });
 
-      response = await model.chat({
-        messages: mappedMessages,
-        tools: tools.getAPI(),
-        systemPrompt,
-        maxOutputTokens: maxTokens,
-        abortSignal,
-      });
+      if (model.chatStream) {
+        const streamGen = model.chatStream({
+          messages: mappedMessages,
+          tools: tools.getAPI(),
+          systemPrompt,
+          maxOutputTokens: maxTokens,
+          abortSignal,
+        });
+        const toolAccumulators = new Map<string, { id: string; name: string; input: string }>();
+        let accumulatedText = "";
+        let streamUsage: TokenUsage | undefined;
+        let streamStopReason: "end_turn" | "tool_use" | "max_tokens" | "stop_sequence" = "end_turn";
+
+        for await (const event of streamGen) {
+          switch (event.type) {
+            case "text_delta":
+              if (event.text) {
+                accumulatedText += event.text;
+                yield { type: "text", text: event.text };
+              }
+              break;
+            case "tool_use_start":
+              if (event.id) {
+                toolAccumulators.set(event.id, { id: event.id, name: event.name ?? "", input: "" });
+                streamStopReason = "tool_use";
+              }
+              break;
+            case "tool_use_delta":
+              if (event.id && toolAccumulators.has(event.id)) {
+                toolAccumulators.get(event.id)!.input += event.input ?? "";
+              }
+              break;
+            case "done":
+              streamUsage = event.usage;
+              break;
+            case "error":
+              throw event.error ?? new Error("Stream error");
+          }
+        }
+
+        const streamContent: ContentBlock[] = [];
+        if (accumulatedText) {
+          streamContent.push({ type: "text", text: accumulatedText });
+        }
+        for (const [, tc] of toolAccumulators) {
+          let input: Record<string, unknown> = {};
+          try { input = JSON.parse(tc.input); } catch {}
+          streamContent.push({ type: "tool_use", id: tc.id, name: tc.name, input });
+        }
+
+        response = {
+          content: streamContent,
+          usage: streamUsage ?? { inputTokens: 0, outputTokens: 0 },
+          stopReason: streamStopReason,
+        };
+        textAlreadyYielded = true;
+      } else {
+        response = await model.chat({
+          messages: mappedMessages,
+          tools: tools.getAPI(),
+          systemPrompt,
+          maxOutputTokens: maxTokens,
+          abortSignal,
+        });
+      }
     } catch (err) {
       yield* flushInFlight();
       const error = err instanceof Error ? err : new Error(String(err));
@@ -249,7 +308,9 @@ export async function* agentLoop(config: AgentLoopConfig): AsyncGenerator<LoopEv
     for (const block of response.content) {
       if (block.type === "text") {
         inFlightText += block.text;
-        yield { type: "text", text: block.text };
+        if (!textAlreadyYielded) {
+          yield { type: "text", text: block.text };
+        }
       } else if (block.type === "thinking") {
         inFlightReasoning += block.thinking;
         yield { type: "thinking", thinking: block.thinking };

@@ -1,48 +1,41 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { SessionManager } from "../src/session/session-manager";
+import { SessionManager } from "../../src/session/session-manager.js";
 
 describe("SessionManager", () => {
-  let sessionManager: SessionManager;
+  let manager: SessionManager;
 
   beforeEach(() => {
-    // Re-initialize the manager before each test to ensure isolation
-    sessionManager = new SessionManager();
+    manager = new SessionManager();
   });
 
-  it("should initialize with an empty session storage", () => {
-    // We can't directly access private members, but we can test the behavior
-    // by checking if adding a session works correctly.
-    const sessionId = "test-session-1";
-    sessionManager.createSession(sessionId);
-    // A simple check to ensure the internal map is not empty after creation
-    // (This relies on the implementation detail that createSession populates storage)
-    expect(sessionManager.getStorageSize()).toBe(1);
+  it("should return empty state for unknown session", () => {
+    const state = manager.loadSession("nonexistent");
+    expect(state).toEqual({});
   });
 
-  it("should correctly store and retrieve session state", () => {
-    const sessionId = "state-test-session";
-    const initialState: any = {
-      history: [],
-      metadata: { user: "testuser" },
-    };
-    sessionManager.createSession(sessionId, initialState);
-
-    const retrievedState = sessionManager.getSessionState(sessionId);
-    expect(retrievedState).toEqual(initialState);
+  it("should store and retrieve session state", () => {
+    manager.saveSession("test-1", { key: "value" });
+    const state = manager.loadSession("test-1");
+    expect(state.key).toBe("value");
   });
 
-  it("should update the session state when provided with new data", () => {
-    const sessionId = "update-test-session";
-    sessionManager.createSession(sessionId, { history: [] });
+  it("should return a copy of state", () => {
+    manager.saveSession("test-2", { key: "value" });
+    const state = manager.loadSession("test-2");
+    state.key = "modified";
+    const original = manager.loadSession("test-2");
+    expect(original.key).toBe("value");
+  });
 
-    const updateData: any = {
-      history: [{ role: "user", content: "New message" }],
-      lastUpdated: Date.now(),
-    };
-    sessionManager.updateSessionState(sessionId, updateData);
+  it("should generate context summary for empty state", () => {
+    const summary = manager.generateContextSummary({});
+    expect(summary).toContain("No specific session context");
+  });
 
-    const currentState = sessionManager.getSessionState(sessionId);
-    expect(currentState.history).toEqual([{ role: "user", content: "New message" }]);
-    expect(currentState.lastUpdated).toBe(updateData.lastUpdated);
+  it("should generate context summary for non-empty state", () => {
+    const summary = manager.generateContextSummary({ foo: "bar", count: 42 });
+    expect(summary).toContain("foo");
+    expect(summary).toContain("bar");
+    expect(summary).toContain("count");
   });
 });

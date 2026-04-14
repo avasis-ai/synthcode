@@ -1,4 +1,4 @@
-import { Message, UserMessage, AssistantMessage, ToolResultMessage, ContentBlock, TextBlock, ToolUseBlock, ThinkingBlock } from "./types";
+import type { Message, ToolResultMessage } from "../types.js";
 
 export interface ToolInputMap {
   [key: string]: (context: Record<string, any>) => unknown;
@@ -61,7 +61,6 @@ export class ToolChainExecutor {
     context: ToolChainContext
   ): Promise<any> {
     console.log(`Executing tool: ${toolName} with inputs:`, inputs);
-    // Mock execution logic: In a real scenario, this would call an actual tool service.
     await new Promise(resolve => setTimeout(resolve, 10));
     return { status: "success", result: `Processed ${JSON.stringify(inputs)} for ${toolName}` };
   }
@@ -74,10 +73,7 @@ export class ToolChainExecutor {
       const step = steps[i];
       const requiredInputs = Object.keys(step.inputMap);
 
-      // Basic validation: Check if all required inputs can be mapped from the current state
       for (const inputKey of requiredInputs) {
-        // This is a simplified check. A full check would require knowing the expected output type of previous steps.
-        // For now, we just ensure the mapper function exists.
         if (typeof step.inputMap[inputKey] !== 'function') {
           errors.push(`Step ${i} (${step.toolName}): Input map for '${inputKey}' is not a function.`);
         }
@@ -87,5 +83,3 @@ export class ToolChainExecutor {
     return { isValid: errors.length === 0, errors };
   }
 }
-
-export { ToolChainExecutor };
