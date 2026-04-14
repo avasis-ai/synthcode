@@ -20,6 +20,10 @@ const args = process.argv.slice(2);
 function usage() {
   console.log(`synthcode <prompt> [options]
 
+Commands:
+  adapt                  Inspect machine, analyze project, auto-select best model
+  init [name]            Scaffold a new agent project
+
 Options:
   --model <model>        Use specific model (auto-detects provider)
   --ollama <model>       Use Ollama (default: qwen3:32b)
@@ -35,57 +39,66 @@ Options:
 
 if (args.includes("--help") || args.length === 0) usage();
 
-const promptIdx = args.findIndex(a => !a.startsWith("--"));
-if (promptIdx === -1) {
-  console.error("Error: no prompt provided. Run 'synthcode --help' for usage.");
-  process.exit(1);
+if (args[0] === "adapt") {
+  import("./adapt.js").then(m => m.runAdaptCommand(args.slice(1))).catch(e => { console.error(e); process.exit(1); });
+} else if (args[0] === "init") {
+  import("./index.js").then(m => m.init({})).catch(e => { console.error(e); process.exit(1); });
+} else {
+  runAgent();
 }
 
-const prompt = args[promptIdx];
-const flags = args.filter((_, i) => i !== promptIdx);
-
-function getFlag(flag: string): string | undefined {
+function getFlag(flags: string[], flag: string): string | undefined {
   const idx = flags.indexOf(flag);
   return idx !== -1 && idx + 1 < flags.length ? flags[idx + 1] : undefined;
 }
-function hasFlag(flag: string): boolean {
+
+function hasFlag(flags: string[], flag: string): boolean {
   return flags.includes(flag);
 }
 
-function resolveProvider() {
-  if (hasFlag("--ollama")) {
-    return new OllamaProvider({ model: getFlag("--ollama") ?? "qwen3:32b" });
+function resolveProvider(flags: string[]) {
+  if (hasFlag(flags, "--ollama")) {
+    return new OllamaProvider({ model: getFlag(flags, "--ollama") ?? "qwen3:32b" });
   }
-  if (hasFlag("--anthropic")) {
-    const model = getFlag("--anthropic") ?? "claude-sonnet-4-20250514";
+  if (hasFlag(flags, "--anthropic")) {
+    const model = getFlag(flags, "--anthropic") ?? "claude-sonnet-4-20250514";
     if (!process.env.ANTHROPIC_API_KEY) {
       console.error("Error: ANTHROPIC_API_KEY not set");
       process.exit(1);
     }
     return new AnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY, model });
   }
-  if (hasFlag("--openai")) {
-    const model = getFlag("--openai") ?? "gpt-4o";
+  if (hasFlag(flags, "--openai")) {
+    const model = getFlag(flags, "--openai") ?? "gpt-4o";
     if (!process.env.OPENAI_API_KEY) {
       console.error("Error: OPENAI_API_KEY not set");
       process.exit(1);
     }
     return new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY, model });
   }
-  if (hasFlag("--model")) {
-    return new OllamaProvider({ model: getFlag("--model")! });
+  if (hasFlag(flags, "--model")) {
+    return new OllamaProvider({ model: getFlag(flags, "--model")! });
   }
   if (process.env.ANTHROPIC_API_KEY) return new AnthropicProvider({ apiKey: process.env.ANTHROPIC_API_KEY, model: "claude-sonnet-4-20250514" });
   if (process.env.OPENAI_API_KEY) return new OpenAIProvider({ apiKey: process.env.OPENAI_API_KEY, model: "gpt-4o" });
   return new OllamaProvider({ model: "qwen3:32b" });
 }
 
-async function main() {
-  const provider = resolveProvider();
-  const systemPrompt = getFlag("--system");
-  const maxTurns = parseInt(getFlag("--max-turns") ?? "50", 10);
-  const cwd = getFlag("--cwd") ?? process.cwd();
-  const jsonMode = hasFlag("--json");
+async function runAgent() {
+  const promptIdx = args.findIndex(a => !a.startsWith("--") && a !== "adapt" && a !== "init");
+  if (promptIdx === -1) {
+    console.error("Error: no prompt provided. Run 'synthcode --help' for usage.");
+    process.exit(1);
+  }
+
+  const prompt = args[promptIdx];
+  const flags = args.filter((_, i) => i !== promptIdx);
+
+  const provider = resolveProvider(flags);
+  const systemPrompt = getFlag(flags, "--system");
+  const maxTurns = parseInt(getFlag(flags, "--max-turns") ?? "50", 10);
+  const cwd = getFlag(flags, "--cwd") ?? process.cwd();
+  const jsonMode = hasFlag(flags, "--json");
 
   const agent = new p.Agent({
     model: provider,
@@ -96,7 +109,7 @@ async function main() {
     disableTitle: true,
   });
 
-  const finalText = [];
+  const finalText: string[] = [];
   let finalUsage = { inputTokens: 0, outputTokens: 0 };
 
   for await (const event of agent.run(prompt)) {
@@ -130,5 +143,3 @@ async function main() {
     console.log(JSON.stringify({ ok: true, text: finalText.join(""), usage: finalUsage, model: provider.model }));
   }
 }
-
-main();

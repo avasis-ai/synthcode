@@ -10,7 +10,7 @@
 
 # SynthCode
 
-Production-grade, model-agnostic AI agent framework with dual-path neurosymbolic verification. Zero runtime dependencies. 56 TypeScript source files. 6,694 lines. 196 tests passing.
+Production-grade, model-agnostic AI agent framework with dual-path neurosymbolic verification. Zero runtime dependencies. 61 TypeScript source files. 9,648 lines. 196 tests passing. Self-adapting: inspects your machine, analyzes your project, auto-selects the best local or cloud model.
 
 Every tool call passes through a symbolic fast path (sub-microsecond) and, when routed by policy, a formal slow path that checks invariants against a fixed-size world model DAG. This is the verification layer that other frameworks don't have.
 
@@ -260,6 +260,54 @@ npx @avasis-ai/synthcode "Write tests" --openai gpt-4o
 npx @avasis-ai/synthcode "prompt" --max-turns 20 --system "You are an expert" --json
 ```
 
+## Self-Adapting: synthcode adapt
+
+Inspect your machine, analyze your project, and automatically select the best available model. Works with 30+ models across Ollama, LM Studio, Anthropic, and OpenAI.
+
+```bash
+# Full adapt: inspect hardware + analyze project + recommend model
+npx @avasis-ai/synthcode adapt
+
+# Inspect hardware only
+npx @avasis-ai/synthcode adapt --inspect
+
+# Analyze project only
+npx @avasis-ai/synthcode adapt --analyze
+
+# Override task type (coding, reasoning, chat, agents)
+npx @avasis-ai/synthcode adapt --task agents
+
+# JSON output for scripting
+npx @avasis-ai/synthcode adapt --json
+```
+
+### How it works
+
+1. **MachineInspector** detects CPU, RAM, GPUs (NVIDIA, AMD, Apple Silicon, Intel), running providers (Ollama, LM Studio, llama.cpp, Anthropic CLI, OpenAI CLI), and installed models
+2. **ProjectAnalyzer** scans 50+ languages by extension, detects frameworks from config files and dependencies, identifies test/build/CI tooling, estimates LOC, and derives model requirements
+3. **AutoSelector** scores every catalog entry against your task, hardware constraints, and installed models. Scoring weights: coding = LiveCodeBench 0.5 + SWE-bench 0.3 + HumanEval 0.2; reasoning = MMLU 0.4 + Codeforces 0.3 + SWE-bench 0.3; agents = SWE-bench 0.5 + LiveCodeBench 0.3 + tool-use 0.2
+4. Output includes recommended model, alternatives, and a ready-to-use SynthCode config
+
+### Model Catalog (30+ models)
+
+Gemma 4 (31B, 26B MoE, E4B, E2B), Qwen3-Coder (30B MoE, 480B), Qwen3 (32B, 14B, 8B, 4B, 30B-A3B MoE), Qwen3.5 (27B), DeepSeek-R1 (14B, 32B, 70B), Devstral Small 2 (24B), GLM-4.7-Flash, Phi-4 (14B, Mini 3.8B), Llama 4 (Scout 17B MoE, Maverick 17B MoE), Mistral Small 24B, Codestral 22B, Nemotron Cascade 2 (30B MoE), LFM2 (24B MoE), GPT-OSS (20B, 120B), Olmo 3.1 (32B), Claude Sonnet 4, GPT-4o, and more.
+
+### Programmatic API
+
+```typescript
+import { MachineInspector, AutoSelector, ProjectAnalyzer } from "@avasis-ai/synthcode/model-registry";
+
+const inspector = new MachineInspector();
+const machine = await inspector.inspect();
+
+const analyzer = new ProjectAnalyzer();
+const project = await analyzer.analyze(process.cwd());
+
+const selector = new AutoSelector(machine);
+const result = selector.select({ task: "coding", preferLocal: true });
+// result.model, result.provider, result.confidence, result.alternatives
+```
+
 ## Scaffolding
 
 ```bash
@@ -301,11 +349,11 @@ import {
 
 | | |
 |---|---|
-| Source files | 56 |
-| Lines of TypeScript | 6,694 |
+| Source files | 61 |
+| Lines of TypeScript | 9,648 |
 | Test files | 12 |
 | Tests passing | 196 |
-| ESM bundle | 39 KB |
+| ESM bundle | 40 KB |
 | Gzipped | 10 KB |
 | Runtime dependencies | 0 |
 | Peer dependencies | 4 (all optional) |
@@ -317,7 +365,7 @@ import {
 |--------|-------|---------|
 | tools/ | 1,405 | 8 built-in tools + fuzzy edit engine + verifier + orchestrator |
 | verify/ | 673 | Dual-path verifier: fast path, slow path, WorldModel DAG, router |
-| model/ | 672 | Model registry, provider adapters, benchmarking, recommendation engine |
+| model/ | 3,615 | Model registry, provider adapters, benchmarking, recommendation engine, 30+ model catalog, hardware inspector, auto-selector, project analyzer |
 | llm/ | 1,067 | Anthropic, OpenAI, Ollama, Cluster providers with retry + streaming |
 | mcp/ | 327 | Model Context Protocol client with SSE transport |
 | context/ | 205 | Token estimation, context compaction, overflow prevention |
