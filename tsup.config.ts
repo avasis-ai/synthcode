@@ -12,6 +12,7 @@ export default defineConfig({
     "tools/fuzzy-edit": "src/tools/fuzzy-edit.ts",
     "verify/index": "src/verify/index.ts",
     "model/index": "src/model/index.ts",
+    "tui/index": "src/tui/index.ts",
   },
   format: ["esm", "cjs"],
   dts: true,

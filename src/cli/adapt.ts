@@ -1,6 +1,18 @@
 import { MachineInspector, type MachineProfile } from "../model/inspector.js";
 import { AutoSelector, type SelectionRequest, type SelectionResult } from "../model/selector.js";
 import { ProjectAnalyzer, type ProjectProfile } from "../model/project.js";
+import { MODEL_CATALOG, type CatalogEntry } from "../model/catalog.js";
+import {
+  renderInspectScreen,
+  renderCatalogScreen,
+  renderLeaderboardScreen,
+  renderModelDetails,
+} from "../tui/index.js";
+import { styled, C, type Style, terminalWidth } from "../tui/ansi.js";
+import { panel, rule } from "../tui/panel.js";
+import { panel } from "../tui/panel.js";
+import { ROUNDED, THICK } from "../tui/symbols.js";
+import { benchmarkBar, gauge } from "../tui/bar.js";
 
 export interface AdaptedConfig {
   provider: string;
@@ -11,23 +23,7 @@ export interface AdaptedConfig {
 }
 
 type TaskType = "coding" | "reasoning" | "chat" | "agents";
-type RunMode = "full" | "inspect" | "analyze";
-
-const BOX_TOP = "\u250C" + "\u2500".repeat(37) + "\u2510";
-const BOX_BOTTOM = "\u2514" + "\u2500".repeat(37) + "\u2518";
-const BOX_SIDE = "\u2502";
-
-function wrapBoxLine(text: string): string {
-  const inner = 37;
-  if (text.length <= inner) {
-    return `${BOX_SIDE}  ${text.padEnd(inner)}${BOX_SIDE}`;
-  }
-  return `${BOX_SIDE}  ${text.slice(0, inner - 1)}\u2026${BOX_SIDE}`;
-}
-
-function formatGB(gb: number): string {
-  return gb.toFixed(1);
-}
+type RunMode = "full" | "inspect" | "analyze" | "catalog" | "leaderboard" | "model";
 
 function detectTask(project: ProjectProfile | null): TaskType {
   if (!project) return "coding";
@@ -75,187 +71,97 @@ function buildAdaptedConfig(
   };
 }
 
-function renderMachineSection(machine: MachineProfile): string {
-  const lines: string[] = [];
-
-  lines.push(
-    `Machine: ${machine.hostname} (${machine.cpuModel})`
-  );
-  lines.push(`  CPU: ${machine.cpuCores} cores`);
-  lines.push(
-    `  RAM: ${formatGB(machine.totalRamGB)} GB total, ${formatGB(machine.availableRamGB)} GB available`
-  );
-
-  if (machine.gpus.length > 0) {
-    for (const gpu of machine.gpus) {
-      const vram = gpu.vramGB > 0 ? ` (${formatGB(gpu.vramGB)} GB)` : "";
-      lines.push(`  GPU: ${gpu.name}${vram}`);
-    }
-  }
-
-  if (machine.hasMetal) {
-    lines.push("  Metal: yes (Apple Silicon)");
-  }
-
-  return lines.join("\n");
-}
-
-function renderProvidersSection(machine: MachineProfile): string {
-  const lines: string[] = [];
-  lines.push("Providers:");
-
-  const providers = machine.providers ?? [];
-
-  if (providers.length === 0) {
-    lines.push("  (none detected)");
-  } else {
-    for (const p of providers) {
-      const check = p.available ? "+" : "-";
-      const parts: string[] = [p.name];
-      if (p.version) parts.push(`v${p.version}`);
-      if (p.installedModels != null && p.installedModels > 0) {
-        parts.push(`${p.installedModels} models`);
-      }
-      lines.push(`  [${check}] ${parts.join(" ")}`);
-    }
-  }
-
-  return lines.join("\n");
-}
-
-function renderModelsSection(machine: MachineProfile): string {
-  const lines: string[] = [];
-  lines.push("Installed Models:");
-
-  const models = machine.installedModels ?? [];
-
-  if (models.length === 0) {
-    lines.push("  (none)");
-  } else {
-    for (const m of models) {
-      const size = m.sizeGB > 0 ? `${formatGB(m.sizeGB)} GB` : "";
-      const quant = m.quantization ? ` (${m.quantization})` : "";
-      lines.push(`  ${m.tag.padEnd(24)} ${size}${quant}`);
-    }
-  }
-
-  return lines.join("\n");
-}
-
-function renderProjectSection(project: ProjectProfile): string {
-  const lines: string[] = [];
-
-  lines.push(`Project: ${project.name}`);
-
-  const langs = project.languages ?? [];
-  const topLangs = langs.slice(0, 5);
-  if (topLangs.length > 0) {
-    const langStr = topLangs
-      .map((l) => `${l.language} (${Math.round(l.percentage)}%)`)
-      .join(", ");
-    lines.push(`  Languages: ${langStr}`);
-  }
-
-  const frameworks = project.frameworks ?? [];
-  if (frameworks.length > 0) {
-    lines.push(`  Framework: ${frameworks.map((f) => f.name).join(", ")}`);
-  }
-
-  const sizeLabel = project.complexity;
-  lines.push(
-    `  Size: ${project.totalFiles} files, ~${project.totalLinesOfCode.toLocaleString()} lines (${sizeLabel})`
-  );
-
-  if (project.testFramework) {
-    lines.push(`  Tests: ${project.testFramework}`);
-  }
-
-  return lines.join("\n");
-}
-
-function renderSelectionSection(selection: SelectionResult): string {
-  const lines: string[] = [];
-
-  lines.push("Recommended Model:");
-  lines.push(`  ${BOX_TOP}`);
-
-  const via = `via ${selection.provider}`;
-  lines.push(wrapBoxLine(`${selection.model} ${via}`));
-  lines.push(wrapBoxLine(`Confidence: ${Math.round(selection.confidence * 100)}%`));
-
-  const reason = selection.reason ?? "No reason provided.";
-  const reasonLines = reason.match(/.{1,37}/g) ?? [reason];
-  for (const rl of reasonLines) {
-    lines.push(wrapBoxLine(rl.trim()));
-  }
-
-  lines.push(`  ${BOX_BOTTOM}`);
-
-  if (selection.alternatives.length > 0) {
-    lines.push("");
-    lines.push("  Alternatives:");
-    const maxShow = Math.min(selection.alternatives.length, 4);
-    for (let i = 0; i < maxShow; i++) {
-      const alt = selection.alternatives[i];
-      lines.push(
-        `    ${i + 1}. ${alt.model} via ${alt.provider}`
-      );
-    }
-  }
-
-  return lines.join("\n");
-}
-
-function renderConfigSection(config: AdaptedConfig): string {
-  const lines: string[] = [];
-  lines.push("Recommended SynthCode Config:");
-
-  const modelStr = `${config.provider}:${config.model}`;
-  const obj = {
-    model: modelStr,
-    dualPathVerifier: config.dualPathVerifier,
-    maxTurns: 100,
-    context: { maxTokens: config.maxTokens },
-  };
-
-  lines.push("  " + JSON.stringify(obj, null, 2).replace(/\n/g, "\n  "));
-
-  return lines.join("\n");
-}
-
-function formatReport(
+function renderAdaptTUI(
   machine: MachineProfile | null,
   project: ProjectProfile | null,
   selection: SelectionResult | null,
   config: AdaptedConfig | null
 ): string {
+  const w = Math.min(terminalWidth(), 90);
+  const accent: Style = { fg: C.synthAccent, bold: true };
+  const muted: Style = { fg: C.synthMuted };
+  const green: Style = { fg: C.synthGreen };
+  const yellow: Style = { fg: C.synthYellow };
+
   const sections: string[] = [];
 
-  sections.push("SynthCode Adapt -- Machine Intelligence Report");
-  sections.push("=".repeat(47));
+  sections.push("");
+  sections.push(styled("  SynthCode Adapt", { fg: C.synthAccent, bold: true, underline: true }));
+  sections.push(rule("self-adapting model selection", { char: "\u2500", style: muted, width: w }));
   sections.push("");
 
   if (machine) {
-    sections.push(renderMachineSection(machine));
-    sections.push("");
-    sections.push(renderProvidersSection(machine));
-    sections.push("");
-    sections.push(renderModelsSection(machine));
+    sections.push(renderInspectScreen(machine));
     sections.push("");
   }
 
   if (project) {
-    sections.push(renderProjectSection(project));
+    const lines: string[] = [];
+    lines.push(styled("  Project Analysis", accent));
+    lines.push(`  ${styled("Name", muted).padEnd(16)}  ${project.name}`);
+    const topLangs = (project.languages ?? []).slice(0, 5);
+    if (topLangs.length > 0) {
+      const langStr = topLangs.map((l) => `${l.language} (${Math.round(l.percentage)}%)`).join(", ");
+      lines.push(`  ${styled("Languages", muted).padEnd(16)}  ${langStr}`);
+    }
+    const fwStr = (project.frameworks ?? []).map((f) => f.name).join(", ");
+    if (fwStr) lines.push(`  ${styled("Frameworks", muted).padEnd(16)}  ${fwStr}`);
+    lines.push(`  ${styled("Size", muted).padEnd(16)}  ${project.totalFiles} files, ~${project.totalLinesOfCode.toLocaleString()} lines (${project.complexity})`);
+    if (project.testFramework) lines.push(`  ${styled("Tests", muted).padEnd(16)}  ${project.testFramework}`);
+
+    sections.push(panel(lines.join("\n"), { border: ROUNDED, borderStyle: muted, width: w, padding: 0 }));
     sections.push("");
   }
 
-  if (selection) {
-    sections.push(renderSelectionSection(selection));
+  if (selection && machine) {
+    const lines: string[] = [];
+    lines.push(styled("  Recommended Model", accent));
+    lines.push("");
+
+    const modelPanel = panel(
+      [
+        `  ${styled(selection.model, { fg: C.synthAccent, bold: true })}`,
+        `  via ${styled(selection.provider, { fg: C.synthFg })}`,
+        "",
+        `  ${styled("Confidence", muted).padEnd(14)}  ${benchmarkBar(selection.confidence, 1, 20, { color: C.synthAccent, bgColor: [30, 30, 45] })}  ${styled(`${Math.round(selection.confidence * 100)}%`, { fg: C.synthAccent, bold: true })}`,
+        "",
+        `  ${styled("Reason", muted)}`,
+        `  ${selection.reason}`,
+        "",
+        `  ${styled("Download", muted).padEnd(14)}  ${selection.needsDownload ? styled("Required", { fg: C.synthYellow }) : styled("Already installed", green)}`,
+      ].join("\n"),
+      { border: THICK, borderStyle: { fg: C.synthAccent }, width: 50, padding: 0 }
+    );
+    lines.push(modelPanel);
+
+    if (selection.alternatives.length > 0) {
+      lines.push("");
+      lines.push(styled("  Alternatives", accent));
+      const maxShow = Math.min(selection.alternatives.length, 4);
+      for (let i = 0; i < maxShow; i++) {
+        const alt = selection.alternatives[i];
+        lines.push(`  ${styled(`${i + 1}.`, muted)}  ${styled(alt.model, { fg: C.synthFg })}  via ${styled(alt.provider, muted)}`);
+        lines.push(`      ${styled(alt.reason, { fg: C.synthDim })}`);
+      }
+    }
+
+    sections.push(lines.join("\n"));
     sections.push("");
   }
 
   if (config) {
-    sections.push(renderConfigSection(config));
+    const lines: string[] = [];
+    lines.push(styled("  SynthCode Config", accent));
+    const modelStr = `${config.provider}:${config.model}`;
+    const obj = {
+      model: modelStr,
+      dualPathVerifier: config.dualPathVerifier,
+      maxTurns: 100,
+      context: { maxTokens: config.maxTokens },
+    };
+    lines.push("  " + JSON.stringify(obj, null, 2).replace(/\n/g, "\n  "));
+
+    sections.push(panel(lines.join("\n"), { border: ROUNDED, borderStyle: muted, width: w, padding: 0 }));
   }
 
   return sections.join("\n");
@@ -265,10 +171,14 @@ function parseArgs(args: string[]): {
   mode: RunMode;
   json: boolean;
   taskOverride: TaskType | null;
+  modelId: string | null;
+  family: string | null;
 } {
   let mode: RunMode = "full";
   let json = false;
   let taskOverride: TaskType | null = null;
+  let modelId: string | null = null;
+  let family: string | null = null;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -283,6 +193,16 @@ function parseArgs(args: string[]): {
       case "--json":
         json = true;
         break;
+      case "catalog":
+        mode = "catalog";
+        break;
+      case "leaderboard":
+        mode = "leaderboard";
+        break;
+      case "model":
+        mode = "model";
+        modelId = args[++i] ?? null;
+        break;
       case "--task": {
         const val = args[++i];
         const valid: TaskType[] = ["coding", "reasoning", "chat", "agents"];
@@ -294,6 +214,14 @@ function parseArgs(args: string[]): {
         taskOverride = val as TaskType;
         break;
       }
+      case "--model": {
+        modelId = args[++i] ?? null;
+        break;
+      }
+      case "--family": {
+        family = args[++i] ?? null;
+        break;
+      }
       default:
         if (arg.startsWith("--")) {
           throw new Error(`Unknown option: ${arg}`);
@@ -302,20 +230,67 @@ function parseArgs(args: string[]): {
     }
   }
 
-  return { mode, json, taskOverride };
+  return { mode, json, taskOverride, modelId, family };
 }
 
 export async function runAdaptCommand(args: string[]): Promise<void> {
-  const { mode, json, taskOverride } = parseArgs(args);
+  const { mode, json, taskOverride, modelId, family } = parseArgs(args);
 
   let machine: MachineProfile | null = null;
-  let project: ProjectProfile | null = null;
-  let selection: SelectionResult | null = null;
 
-  if (mode === "full" || mode === "inspect") {
+  if (
+    mode === "full" ||
+    mode === "inspect" ||
+    mode === "catalog" ||
+    mode === "leaderboard"
+  ) {
     const inspector = new MachineInspector();
     machine = await inspector.inspect();
   }
+
+  if (mode === "catalog") {
+    console.log(
+      renderCatalogScreen(machine, {
+        task: taskOverride ?? undefined,
+        family: family ?? undefined,
+      })
+    );
+    return;
+  }
+
+  if (mode === "leaderboard") {
+    console.log(
+      renderLeaderboardScreen(taskOverride ?? "coding", machine)
+    );
+    return;
+  }
+
+  if (mode === "model") {
+    if (!modelId) {
+      console.error("Usage: synthcode adapt model <model-id>");
+      process.exit(1);
+    }
+    const entry = MODEL_CATALOG.find(
+      (e) =>
+        e.id === modelId ||
+        e.ollamaTags.includes(modelId) ||
+        e.name.toLowerCase() === modelId.toLowerCase()
+    );
+    if (!entry) {
+      console.error(`Model not found: ${modelId}`);
+      console.error(
+        `Available: ${MODEL_CATALOG.filter((e) => e.ollamaTags.length > 0)
+          .map((e) => e.ollamaTags[0])
+          .join(", ")}`
+      );
+      process.exit(1);
+    }
+    console.log(renderModelDetails(entry, machine));
+    return;
+  }
+
+  let project: ProjectProfile | null = null;
+  let selection: SelectionResult | null = null;
 
   if (mode === "full" || mode === "analyze") {
     try {
@@ -328,14 +303,8 @@ export async function runAdaptCommand(args: string[]): Promise<void> {
 
   if (mode === "full" && machine) {
     const task: TaskType = taskOverride ?? detectTask(project);
-
     const selector = new AutoSelector(machine);
-
-    const request: SelectionRequest = {
-      task,
-      preferLocal: true,
-    };
-
+    const request: SelectionRequest = { task, preferLocal: true };
     selection = selector.select(request);
   }
 
@@ -347,6 +316,6 @@ export async function runAdaptCommand(args: string[]): Promise<void> {
       JSON.stringify({ machine, project, selection, config }, null, 2)
     );
   } else {
-    console.log(formatReport(machine, project, selection, config));
+    console.log(renderAdaptTUI(machine, project, selection, config));
   }
 }

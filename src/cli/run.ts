@@ -21,7 +21,13 @@ function usage() {
   console.log(`synthcode <prompt> [options]
 
 Commands:
-  adapt                  Inspect machine, analyze project, auto-select best model
+  adapt                  Self-adapting model selection
+    adapt                Full: inspect machine, analyze project, recommend model
+    adapt --inspect      Inspect machine hardware and providers only
+    adapt --analyze      Analyze project only
+    adapt catalog        Browse 30+ model catalog with benchmarks
+    adapt leaderboard    Model performance rankings
+    adapt model <id>     Detailed model info with benchmark charts
   init [name]            Scaffold a new agent project
 
 Options:
