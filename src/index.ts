@@ -81,3 +81,28 @@ export {
 } from "./types.js";
 
 export { CircuitBreaker } from "./circuit-breaker.js";
+
+export { ModelRegistry } from "./model/index.js";
+export { OpenAICompatAdapter, AnthropicAdapter, GoogleAIAdapter } from "./model/index.js";
+export { BENCHMARK_PRESETS } from "./model/index.js";
+export type {
+  ModelInfo,
+  ModelCapability,
+  BenchmarkResult,
+  BenchmarkConfig,
+  BenchmarkPreset,
+  SelectionCriteria,
+  RankedModel,
+  ProviderAdapter,
+} from "./model/index.js";
+
+export { DualPathVerifier, WorldModel, runFastPath, runSlowPath, DEFAULT_ROUTING_POLICY } from "./verify/index.js";
+export type {
+  SafetyClass,
+  Verdict,
+  FastPathResult,
+  SlowPathResult,
+  DualPathVerdict,
+  ToolOperation,
+  RoutingPolicy,
+} from "./verify/index.js";

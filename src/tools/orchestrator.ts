@@ -2,6 +2,7 @@ import type { ToolContext, ToolUseBlock } from '../types.js';
 import type { Tool } from './tool.js';
 import { ToolRegistry } from './registry.js';
 import { ToolVerifier, type VerificationContext } from './verifier.js';
+import type { DualPathVerifier } from '../verify/router.js';
 
 export { ToolVerifier } from './verifier.js';
 export type { VerificationCheck, VerificationResult, VerificationRule, VerificationContext } from './verifier.js';
@@ -79,6 +80,8 @@ async function executeToolCall(
   abortSignal?: AbortSignal,
   verifier?: ToolVerifier,
   verificationContext?: VerificationContext,
+  dualPathVerifier?: DualPathVerifier,
+  turnCount?: number,
 ): Promise<ToolExecutionResult> {
   if (abortSignal?.aborted) {
     return {
@@ -128,7 +131,18 @@ async function executeToolCall(
       }
     }
 
-    if (verifier && verificationContext) {
+    if (dualPathVerifier) {
+      const verdict = dualPathVerifier.verify(call.name, parseResult.data as Record<string, unknown>, turnCount ?? 0);
+      if (verdict.finalVerdict === "block") {
+        return {
+          id: call.id,
+          name: call.name,
+          output: `Verification blocked: ${verdict.reason ?? "safety policy violation"} [${verdict.pathTaken} path, ${verdict.totalLatencyMs.toFixed(2)}ms]`,
+          isError: true,
+          durationMs: Math.round(performance.now() - start),
+        };
+      }
+    } else if (verifier && verificationContext) {
       const result = verifier.verify(call.name, parseResult.data as Record<string, unknown>, verificationContext);
       if (!result.approved) {
         return {
@@ -143,6 +157,10 @@ async function executeToolCall(
 
     const output = await tool.execute(parseResult.data, context);
 
+    if (dualPathVerifier) {
+      dualPathVerifier.recordSuccess(call.name, parseResult.data as Record<string, unknown>, turnCount ?? 0);
+    }
+
     return {
       id: call.id,
       name: call.name,
@@ -152,6 +170,9 @@ async function executeToolCall(
     };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
+    if (dualPathVerifier) {
+      dualPathVerifier.recordFailure(call.name, call.input, turnCount ?? 0);
+    }
     return {
       id: call.id,
       name: call.name,
@@ -164,6 +185,7 @@ async function executeToolCall(
 
 export interface OrchestrateOptions {
   verifier?: ToolVerifier;
+  dualPathVerifier?: DualPathVerifier;
   previousToolCalls?: Array<{ name: string; input: Record<string, unknown> }>;
   turnCount?: number;
 }
@@ -186,6 +208,7 @@ export async function orchestrateTools(
   options?: OrchestrateOptions,
 ): Promise<ToolExecutionResult[]> {
   const verifier = options?.verifier;
+  const dualVerifier = options?.dualPathVerifier;
   const batches = partitionToolCalls(toolCalls, tools);
   const results: ToolExecutionResult[] = [];
 
@@ -208,7 +231,7 @@ export async function orchestrateTools(
       const promises = batch.map((call) =>
         semaphore.acquire().then(async () => {
           try {
-            return await executeToolCall(call, tools, context, permissionCheck, abortSignal, verifier, buildVerificationContext(options));
+            return await executeToolCall(call, tools, context, permissionCheck, abortSignal, verifier, buildVerificationContext(options), dualVerifier, options?.turnCount);
           } finally {
             semaphore.release();
           }
@@ -230,7 +253,7 @@ export async function orchestrateTools(
         }
       }
     } else {
-      const result = await executeToolCall(batch[0], tools, context, permissionCheck, abortSignal, verifier, buildVerificationContext(options));
+      const result = await executeToolCall(batch[0], tools, context, permissionCheck, abortSignal, verifier, buildVerificationContext(options), dualVerifier, options?.turnCount);
       results.push(result);
     }
   }

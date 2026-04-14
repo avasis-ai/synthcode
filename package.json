@@ -1,6 +1,6 @@
 {
   "name": "@avasis-ai/synthcode",
-  "version": "1.0.326",
+  "version": "1.1.0",
   "description": "SynthCode - Synthesize any LLM into a production-grade AI agent. Battle-tested agentic patterns, model-agnostic, TypeScript-first.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -65,6 +65,26 @@
       "require": {
         "types": "./dist/tools/fuzzy-edit.d.cts",
         "default": "./dist/tools/fuzzy-edit.cjs"
+      }
+    },
+    "./verify": {
+      "import": {
+        "types": "./dist/verify/index.d.ts",
+        "default": "./dist/verify/index.js"
+      },
+      "require": {
+        "types": "./dist/verify/index.d.cts",
+        "default": "./dist/verify/index.cjs"
+      }
+    },
+    "./model-registry": {
+      "import": {
+        "types": "./dist/model/index.d.ts",
+        "default": "./dist/model/index.js"
+      },
+      "require": {
+        "types": "./dist/model/index.d.cts",
+        "default": "./dist/model/index.cjs"
       }
     }
   },

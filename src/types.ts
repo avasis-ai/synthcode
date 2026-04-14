@@ -79,6 +79,7 @@ export interface AgentConfig {
   cwd?: string;
   maxRetries?: number;
   verifier?: import("./tools/verifier.js").ToolVerifier;
+  dualPathVerifier?: import("./verify/router.js").DualPathVerifier;
 }
 
 export interface ContextConfig {

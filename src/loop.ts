@@ -3,6 +3,7 @@ import { DEFAULT_MAX_TURNS } from "./types.js";
 import { ToolRegistry } from "./tools/registry.js";
 import { orchestrateTools, type OrchestrateOptions } from "./tools/orchestrator.js";
 import { ToolVerifier } from "./tools/verifier.js";
+import type { DualPathVerifier } from "./verify/router.js";
 import { ContextManager } from "./context/manager.js";
 import { PermissionEngine } from "./permissions/engine.js";
 import type { Provider } from "./llm/provider.js";
@@ -32,6 +33,7 @@ export interface AgentLoopConfig {
   hooks?: AgentHooks;
   costTracker?: CostTracker;
   verifier?: ToolVerifier;
+  dualPathVerifier?: DualPathVerifier;
 }
 
 function parseRetryAfterMs(error: Error): number | null {
@@ -100,6 +102,7 @@ export async function* agentLoop(config: AgentLoopConfig): AsyncGenerator<LoopEv
     hooks,
     costTracker,
     verifier,
+    dualPathVerifier,
   } = config;
 
   const hookRunner = new HookRunner(hooks);
@@ -318,6 +321,7 @@ export async function* agentLoop(config: AgentLoopConfig): AsyncGenerator<LoopEv
 
     const orchestrateOptions: OrchestrateOptions = {
       verifier,
+      dualPathVerifier,
       previousToolCalls: collectPreviousToolCalls(messages),
       turnCount: turns,
     };

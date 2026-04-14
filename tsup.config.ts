@@ -10,6 +10,8 @@ export default defineConfig({
     "cli/index": "src/cli/index.ts",
     "cli/run": "src/cli/run.ts",
     "tools/fuzzy-edit": "src/tools/fuzzy-edit.ts",
+    "verify/index": "src/verify/index.ts",
+    "model/index": "src/model/index.ts",
   },
   format: ["esm", "cjs"],
   dts: true,

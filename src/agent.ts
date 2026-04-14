@@ -5,6 +5,7 @@ import { ToolRegistry } from "./tools/registry.js";
 import { defineTool } from "./tools/tool.js";
 import type { Tool } from "./tools/tool.js";
 import { ToolVerifier } from "./tools/verifier.js";
+import type { DualPathVerifier } from "./verify/router.js";
 import { ContextManager } from "./context/manager.js";
 import { PermissionEngine } from "./permissions/engine.js";
 import type { Provider } from "./llm/provider.js";
@@ -32,6 +33,7 @@ export class Agent {
   private permissionEngine: PermissionEngine;
   private permissionConfig?: PermissionConfig;
   private verifier?: ToolVerifier;
+  private dualPathVerifier?: DualPathVerifier;
   private cwd: string;
   private maxRetries: number;
   private messages: Message[] = [];
@@ -57,6 +59,7 @@ export class Agent {
     this.permissionEngine = new PermissionEngine(config.permissions);
     this.permissionConfig = config.permissions;
     this.verifier = config.verifier;
+    this.dualPathVerifier = config.dualPathVerifier;
     this.cwd = config.cwd ?? process.cwd();
     this.maxRetries = config.maxRetries ?? 5;
 
@@ -127,6 +130,7 @@ export class Agent {
         maxOutputTokens: this.contextManager.maxOutputTokens,
         compactThreshold: this.contextManager.compactThreshold,
       },
+      dualPathVerifier: this.dualPathVerifier,
     });
     forked.messages = [...this.messages];
     return forked;
@@ -155,6 +159,7 @@ export class Agent {
       hooks: this.hooks,
       costTracker: this.costTracker,
       verifier: this.verifier,
+      dualPathVerifier: this.dualPathVerifier,
     });
 
     const finalMessages: Message[] = [];
