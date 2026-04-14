@@ -1,8 +1,4 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/avasis-ai/synthcode/main/docs/images/hero.png" alt="SynthCode" width="1200">
-</p>
-
-<p align="center">
   <img src="https://img.shields.io/npm/v/@avasis-ai/synthcode?style=flat-square&color=black&logo=osi" alt="npm">
   <img src="https://img.shields.io/npm/l/@avasis-ai/synthcode?style=flat-square&color=black&logo=osi" alt="MIT">
   <img src="https://img.shields.io/badge/TypeScript-5.9+-3178C6?style=flat-square" alt="TypeScript">
@@ -12,7 +8,9 @@
   <img src="https://img.shields.io/badge/PRs_Welcome-brightgreen?style=flat-square&logo=osi" alt="PRs Welcome">
 </p>
 
-**SynthCode** is a production-grade, model-agnostic AI agent framework with dual-path neurosymbolic verification. Zero runtime dependencies. 56 TypeScript source files. 6,694 lines. 196 tests passing.
+# SynthCode
+
+Production-grade, model-agnostic AI agent framework with dual-path neurosymbolic verification. Zero runtime dependencies. 56 TypeScript source files. 6,694 lines. 196 tests passing.
 
 Every tool call passes through a symbolic fast path (sub-microsecond) and, when routed by policy, a formal slow path that checks invariants against a fixed-size world model DAG. This is the verification layer that other frameworks don't have.
 
@@ -47,10 +45,6 @@ for await (const event of agent.run("List all TypeScript files in src/")) {
 ```
 
 ## Dual-Path Verification
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/avasis-ai/synthcode/main/docs/images/architecture.png" alt="Architecture" width="800">
-</p>
 
 Every tool call enters the verifier. The **fast path** runs 6 symbolic pattern-matching rules in under a microsecond. If the routing policy triggers (destroy operations, warnings, consecutive failures, unknown files, write-without-read), the **slow path** checks 6 invariants against a WorldModel DAG with fixed-size bounds (512 files, 64 history entries, LRU eviction).
 
@@ -94,10 +88,6 @@ Verdicts: `pass`, `warn`, `block`, `escalate`. Blocked calls never reach tool ex
 
 ## Feature Comparison
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/avasis-ai/synthcode/main/docs/images/features.png" alt="Features" width="900">
-</p>
-
 | Feature | SynthCode | Claude Code | OpenCode | Codex CLI |
 |---------|-----------|-------------|----------|-----------|
 | Open Source | MIT | Proprietary | MIT | MIT |
@@ -116,10 +106,6 @@ Verdicts: `pass`, `warn`, `block`, `escalate`. Blocked calls never reach tool ex
 
 ## Tools
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/avasis-ai/synthcode/main/docs/images/tools.png" alt="Tools" width="900">
-</p>
-
 ### FileEdit: 8-Strategy Fuzzy Engine
 
 When an LLM's edit doesn't match exactly, SynthCode tries 8 fuzzy matching strategies before giving up:
@@ -134,10 +120,6 @@ When an LLM's edit doesn't match exactly, SynthCode tries 8 fuzzy matching strat
 8. **Context-aware** -- first/last line anchors with proportional middle matching
 
 ## Providers
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/avasis-ai/synthcode/main/docs/images/models.png" alt="Providers" width="800">
-</p>
 
 ```typescript
 // Claude
@@ -176,10 +158,6 @@ const ranked = registry.recommend({ minTokPerSec: 10, requireCapabilities: ["too
 
 ## Benchmarks
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/avasis-ai/synthcode/main/docs/images/benchmarks.png" alt="Benchmarks" width="800">
-</p>
-
 Measured on Apple M4 Pro, Node.js 25. All operations single-threaded.
 
 | Metric | Throughput |
@@ -194,10 +172,6 @@ Measured on Apple M4 Pro, Node.js 25. All operations single-threaded.
 | Context check (500 msgs) | 8K ops/s |
 
 ## Bundle Size
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/avasis-ai/synthcode/main/docs/images/bundle-chart.png" alt="Bundle Size" width="800">
-</p>
 
 | Framework | ESM | Gzipped |
 |-----------|-----|---------|
@@ -312,16 +286,11 @@ npm install openai              # for GPT
 
 ```typescript
 import {
-  // Core
   Agent, agentLoop,
-  // Tools
   BashTool, FileReadTool, FileWriteTool, FileEditTool,
   GlobTool, GrepTool, WebFetchTool, fuzzyReplace,
-  // Verification
   DualPathVerifier, WorldModel, ToolVerifier,
-  // Providers
   AnthropicProvider, OpenAIProvider, OllamaProvider, ClusterProvider, createProvider,
-  // Infrastructure
   ContextManager, PermissionEngine, CostTracker, CircuitBreaker,
   MCPClient, HookRunner, ModelRegistry,
   InMemoryStore, SQLiteStore,
