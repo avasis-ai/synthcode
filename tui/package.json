@@ -1,6 +1,6 @@
 {
   "name": "@avasis-ai/synthcode-tui",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "SynthCode TUI — neurosymbolic coding platform control plane with symbolic gates, agentic chat, and multi-provider LLM support",
   "type": "module",
   "bin": {
