@@ -1,0 +1,14 @@
+{
+  "name": "synthcode-tui",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run src/main.ts",
+    "build": "bun build src/main.ts --outdir dist --target bun"
+  },
+  "dependencies": {
+    "@morphllm/morphsdk": "^0.2.166",
+    "@opentui/core": "file:/tmp/opentui/packages/core",
+    "@opentui/core-darwin-arm64": "0.1.99"
+  }
+}
