@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520">
+  <defs>
+    <filter id="archGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="nodeGlow">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="arrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c5cfc" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#4A9FD8" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="failArrowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EF9F27" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#EF9F27" stop-opacity="0.8"/>
+    </linearGradient>
+    <linearGradient id="passArrowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1D9E75" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#1D9E75" stop-opacity="0.8"/>
+    </linearGradient>
+  </defs>
+  <rect width="960" height="520" fill="#0d0d1a"/>
+  <!-- Subtle grid -->
+  <g stroke="#7c5cfc" stroke-width="0.3" opacity="0.04">
+    <line x1="0" y1="0" x2="0" y2="520"/><line x1="40" y1="0" x2="40" y2="520"/>
+    <line x1="80" y1="0" x2="80" y2="520"/><line x1="120" y1="0" x2="120" y2="520"/>
+    <line x1="160" y1="0" x2="160" y2="520"/><line x1="200" y1="0" x2="200" y2="520"/>
+    <line x1="240" y1="0" x2="240" y2="520"/><line x1="280" y1="0" x2="280" y2="520"/>
+    <line x1="320" y1="0" x2="320" y2="520"/><line x1="360" y1="0" x2="360" y2="520"/>
+    <line x1="400" y1="0" x2="400" y2="520"/><line x1="440" y1="0" x2="440" y2="520"/>
+    <line x1="480" y1="0" x2="480" y2="520"/><line x1="520" y1="0" x2="520" y2="520"/>
+    <line x1="560" y1="0" x2="560" y2="520"/><line x1="600" y1="0" x2="600" y2="520"/>
+    <line x1="640" y1="0" x2="640" y2="520"/><line x1="680" y1="0" x2="680" y2="520"/>
+    <line x1="720" y1="0" x2="720" y2="520"/><line x1="760" y1="0" x2="760" y2="520"/>
+    <line x1="800" y1="0" x2="800" y2="520"/><line x1="840" y1="0" x2="840" y2="520"/>
+    <line x1="880" y1="0" x2="880" y2="520"/><line x1="920" y1="0" x2="920" y2="520"/>
+    <line x1="960" y1="0" x2="960" y2="520"/>
+    <line x1="0" y1="40" x2="960" y2="40"/><line x1="0" y1="80" x2="960" y2="80"/>
+    <line x1="0" y1="120" x2="960" y2="120"/><line x1="0" y1="160" x2="960" y2="160"/>
+    <line x1="0" y1="200" x2="960" y2="200"/><line x1="0" y1="240" x2="960" y2="240"/>
+    <line x1="0" y1="280" x2="960" y2="280"/><line x1="0" y1="320" x2="960" y2="320"/>
+    <line x1="0" y1="360" x2="960" y2="360"/><line x1="0" y1="400" x2="960" y2="400"/>
+    <line x1="0" y1="440" x2="960" y2="440"/><line x1="0" y1="480" x2="960" y2="480"/>
+    <line x1="0" y1="520" x2="960" y2="520"/>
+  </g>
+  <!-- Title -->
+  <text x="480" y="40" text-anchor="middle" font-family="monospace" font-size="16" fill="#7c5cfc" font-weight="bold" filter="url(#archGlow)">SynthCode Architecture — Neural-Symbolic Pipeline</text>
+  <!-- Node 1: Neural Layer -->
+  <rect x="40" y="160" width="200" height="100" rx="10" fill="#7c5cfc" fill-opacity="0.15" stroke="#7c5cfc" stroke-width="1.5" filter="url(#nodeGlow)"/>
+  <text x="140" y="198" text-anchor="middle" font-family="monospace" font-size="14" fill="#7c5cfc" font-weight="bold">Neural Layer</text>
+  <text x="140" y="218" text-anchor="middle" font-family="monospace" font-size="11" fill="#9b7dff">LLM Code Generation</text>
+  <text x="140" y="238" text-anchor="middle" font-family="monospace" font-size="10" fill="#555">~200-2000ms</text>
+  <!-- Arrow 1→2 -->
+  <line x1="240" y1="210" x2="310" y2="210" stroke="url(#arrowGrad)" stroke-width="2"/>
+  <polygon points="308,204 320,210 308,216" fill="#7c5cfc"/>
+  <text x="275" y="200" text-anchor="middle" font-family="monospace" font-size="9" fill="#555">code</text>
+  <!-- Node 2: Symbolic Consistency Gate -->
+  <rect x="320" y="130" width="260" height="160" rx="10" fill="#1D9E75" fill-opacity="0.12" stroke="#1D9E75" stroke-width="1.5" filter="url(#nodeGlow)"/>
+  <text x="450" y="165" text-anchor="middle" font-family="monospace" font-size="13" fill="#1D9E75" font-weight="bold">Symbolic Consistency</text>
+  <text x="450" y="183" text-anchor="middle" font-family="monospace" font-size="13" fill="#1D9E75" font-weight="bold">Gate</text>
+  <line x1="350" y1="195" x2="550" y2="195" stroke="#1D9E75" stroke-width="0.5" opacity="0.3"/>
+  <!-- Gate sub-items -->
+  <g font-family="monospace" font-size="10" fill="#cccccc">
+    <text x="355" y="213">type_check</text>
+    <text x="470" y="213" fill="#555">3ms</text>
+    <text x="355" y="228">dep_graph</text>
+    <text x="470" y="228" fill="#555">5ms</text>
+    <text x="355" y="243">io_boundary</text>
+    <text x="470" y="243" fill="#555">4ms</text>
+    <text x="355" y="258">syntax_check</text>
+    <text x="470" y="258" fill="#555">2ms</text>
+    <text x="355" y="273">assert_gate</text>
+    <text x="470" y="273" fill="#555">4ms</text>
+    <text x="355" y="288" fill="#555">contract</text>
+    <text x="470" y="288" fill="#555">3ms</text>
+  </g>
+  <!-- Fast path badge -->
+  <rect x="345" y="96" width="210" height="24" rx="5" fill="#1D9E75" fill-opacity="0.15" stroke="#1D9E75" stroke-width="0.5"/>
+  <text x="450" y="113" text-anchor="middle" font-family="monospace" font-size="11" fill="#1D9E75" font-weight="bold">Fast Path ~3-8ms</text>
+  <text x="450" y="86" text-anchor="middle" font-family="monospace" font-size="12" fill="#1D9E75" font-weight="bold">~97.3% of steps</text>
+  <!-- Arrow 2→3 (PASS - goes down to output) -->
+  <line x1="580" y1="210" x2="640" y2="210" stroke="url(#passArrowGrad)" stroke-width="2"/>
+  <polygon points="638,204 650,210 638,216" fill="#1D9E75"/>
+  <text x="610" y="200" text-anchor="middle" font-family="monospace" font-size="9" fill="#1D9E75">PASS</text>
+  <!-- Node 3: Output -->
+  <rect x="650" y="160" width="180" height="100" rx="10" fill="#1D9E75" fill-opacity="0.15" stroke="#1D9E75" stroke-width="1.5" filter="url(#nodeGlow)"/>
+  <text x="740" y="198" text-anchor="middle" font-family="monospace" font-size="14" fill="#1D9E75" font-weight="bold">Output ✓</text>
+  <text x="740" y="218" text-anchor="middle" font-family="monospace" font-size="11" fill="#1D9E75">Write to File</text>
+  <text x="740" y="238" text-anchor="middle" font-family="monospace" font-size="10" fill="#555">Gate Verdict Logged</text>
+  <!-- FAIL-RETRY path going down from Gate -->
+  <line x1="450" y1="290" x2="450" y2="340" stroke="url(#failArrowGrad)" stroke-width="2" stroke-dasharray="6,3"/>
+  <polygon points="444,338 450,350 456,338" fill="#EF9F27"/>
+  <text x="490" y="325" font-family="monospace" font-size="9" fill="#EF9F27">FAIL-RETRY (~2.7%)</text>
+  <!-- Node 4: Formal Verifier (slow path) -->
+  <rect x="330" y="355" width="240" height="90" rx="10" fill="#EF9F27" fill-opacity="0.12" stroke="#EF9F27" stroke-width="1.5" filter="url(#nodeGlow)"/>
+  <text x="450" y="388" text-anchor="middle" font-family="monospace" font-size="13" fill="#EF9F27" font-weight="bold">Formal Verifier</text>
+  <text x="450" y="406" text-anchor="middle" font-family="monospace" font-size="11" fill="#EF9F27">Deep Analysis &amp; Repair</text>
+  <text x="450" y="424" text-anchor="middle" font-family="monospace" font-size="10" fill="#555">~50-500ms (slow path)</text>
+  <text x="450" y="440" text-anchor="middle" font-family="monospace" font-size="10" fill="#EF9F27">Constraint solving + patch gen</text>
+  <!-- Arrow from Verifier back to Gate -->
+  <path d="M 570 400 L 610 400 L 610 320 L 570 320 L 570 290" fill="none" stroke="#EF9F27" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="564,292 570,280 576,292" fill="#EF9F27"/>
+  <text x="625" y="365" font-family="monospace" font-size="9" fill="#EF9F27">re-check</text>
+  <!-- Legend -->
+  <rect x="700" y="330" width="220" height="120" rx="5" fill="#111128" stroke="#333" stroke-width="0.5"/>
+  <text x="810" y="355" text-anchor="middle" font-family="monospace" font-size="11" fill="#cccccc" font-weight="bold">LEGEND</text>
+  <line x1="715" y1="370" x2="745" y2="370" stroke="#7c5cfc" stroke-width="2"/>
+  <text x="755" y="374" font-family="monospace" font-size="10" fill="#cccccc">Neural Layer</text>
+  <line x1="715" y1="390" x2="745" y2="390" stroke="#1D9E75" stroke-width="2"/>
+  <text x="755" y="394" font-family="monospace" font-size="10" fill="#cccccc">Gate (fast path)</text>
+  <line x1="715" y1="410" x2="745" y2="410" stroke="#EF9F27" stroke-width="2" stroke-dasharray="4,3"/>
+  <text x="755" y="414" font-family="monospace" font-size="10" fill="#cccccc">Verifier (slow path)</text>
+  <rect x="715" y="425" width="30" height="12" rx="2" fill="#1D9E75" fill-opacity="0.15" stroke="#1D9E75" stroke-width="0.5"/>
+  <text x="755" y="435" font-family="monospace" font-size="10" fill="#cccccc">PASS / Verified</text>
+  <!-- Bottom note -->
+  <text x="480" y="490" text-anchor="middle" font-family="monospace" font-size="11" fill="#555">Every code mutation passes through ≥1 symbolic gate before reaching the filesystem</text>
+</svg>

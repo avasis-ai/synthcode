@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 580">
+  <defs>
+    <filter id="gtGlow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="960" height="580" fill="#0d0d1a"/>
+  <!-- Terminal title bar -->
+  <rect x="0" y="0" width="960" height="36" fill="#111128" opacity="0.9"/>
+  <circle cx="24" cy="18" r="7" fill="#FF5F57"/>
+  <circle cx="46" cy="18" r="7" fill="#FFBD2E"/>
+  <circle cx="68" cy="18" r="7" fill="#28C840"/>
+  <text x="480" y="24" text-anchor="middle" fill="#555" font-family="monospace" font-size="13">synthcode — gate trace</text>
+  <!-- Title -->
+  <text x="30" y="70" font-family="monospace" font-size="16" fill="#7c5cfc" font-weight="bold" filter="url(#gtGlow)">▶ Gate Trace — Session #2847</text>
+  <text x="780" y="70" font-family="monospace" font-size="12" fill="#555">LIVE</text>
+  <circle cx="770" cy="66" r="4" fill="#1D9E75">
+    <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <!-- Table Header -->
+  <rect x="20" y="85" width="920" height="28" rx="3" fill="#4A9FD8" fill-opacity="0.15"/>
+  <g font-family="monospace" font-size="13" fill="#4A9FD8" font-weight="bold">
+    <text x="40" y="104">STEP</text>
+    <text x="110" y="104">NEURAL OUTPUT</text>
+    <text x="340" y="104">GATE</text>
+    <text x="500" y="104">DECISION</text>
+    <text x="680" y="104">LATENCY</text>
+    <text x="800" y="104">DETAILS</text>
+  </g>
+  <!-- Table Rows -->
+  <g font-family="monospace" font-size="12.5">
+    <!-- Row 1 -->
+    <rect x="20" y="118" width="920" height="26" fill="#ffffff" fill-opacity="0.02"/>
+    <text x="40" y="136" fill="#cccccc">001</text>
+    <text x="110" y="136" fill="#cccccc">fn parse_input(s: &amp;str) → Result</text>
+    <text x="340" y="136" fill="#9b7dff">type_check</text>
+    <rect x="500" y="124" width="48" height="16" rx="3" fill="#1D9E75" fill-opacity="0.2"/>
+    <text x="508" y="136" fill="#1D9E75">PASS</text>
+    <text x="680" y="136" fill="#555555">2.1ms</text>
+    <text x="800" y="136" fill="#555555">types resolve ✓</text>
+    <!-- Row 2 -->
+    <text x="40" y="162" fill="#cccccc">002</text>
+    <text x="110" y="162" fill="#cccccc">mod network { use crate::tcp... }</text>
+    <text x="340" y="162" fill="#9b7dff">dep_graph</text>
+    <rect x="500" y="150" width="48" height="16" rx="3" fill="#1D9E75" fill-opacity="0.2"/>
+    <text x="508" y="162" fill="#1D9E75">PASS</text>
+    <text x="680" y="162" fill="#555555">3.4ms</text>
+    <text x="800" y="162" fill="#555555">deps valid ✓</text>
+    <!-- Row 3 -->
+    <rect x="20" y="170" width="920" height="26" fill="#ffffff" fill-opacity="0.02"/>
+    <text x="40" y="188" fill="#cccccc">003</text>
+    <text x="110" y="188" fill="#cccccc">let mut buf = unsafe { ... }</text>
+    <text x="340" y="188" fill="#9b7dff">io_boundary</text>
+    <rect x="500" y="176" width="82" height="16" rx="3" fill="#EF9F27" fill-opacity="0.2"/>
+    <text x="508" y="188" fill="#EF9F27">FAIL-RETRY</text>
+    <text x="680" y="188" fill="#EF9F27">7.8ms</text>
+    <text x="800" y="188" fill="#EF9F27">unsafe io ✓ (retry 1)</text>
+    <!-- Row 4 -->
+    <text x="40" y="214" fill="#cccccc">004</text>
+    <text x="110" y="214" fill="#cccccc">impl Handler for Connection {}</text>
+    <text x="340" y="214" fill="#9b7dff">syntax_check</text>
+    <rect x="500" y="202" width="48" height="16" rx="3" fill="#1D9E75" fill-opacity="0.2"/>
+    <text x="508" y="214" fill="#1D9E75">PASS</text>
+    <text x="680" y="214" fill="#555555">1.2ms</text>
+    <text x="800" y="214" fill="#555555">ast valid ✓</text>
+    <!-- Row 5 -->
+    <rect x="20" y="222" width="920" height="26" fill="#ffffff" fill-opacity="0.02"/>
+    <text x="40" y="240" fill="#cccccc">005</text>
+    <text x="110" y="240" fill="#cccccc">assert_eq!(result.len(), expected);</text>
+    <text x="340" y="240" fill="#9b7dff">assert_gate</text>
+    <rect x="500" y="228" width="68" height="16" rx="3" fill="#4A9FD8" fill-opacity="0.2"/>
+    <text x="508" y="240" fill="#4A9FD8">VERIFIED</text>
+    <text x="680" y="240" fill="#555555">4.1ms</text>
+    <text x="800" y="240" fill="#555555">formal proof ✓</text>
+    <!-- Row 6 -->
+    <text x="40" y="266" fill="#cccccc">006</text>
+    <text x="110" y="266" fill="#cccccc">pub async fn connect(addr: &amp;str)</text>
+    <text x="340" y="266" fill="#9b7dff">contract</text>
+    <rect x="500" y="254" width="48" height="16" rx="3" fill="#1D9E75" fill-opacity="0.2"/>
+    <text x="508" y="266" fill="#1D9E75">PASS</text>
+    <text x="680" y="266" fill="#555555">2.7ms</text>
+    <text x="800" y="266" fill="#555555">contract holds ✓</text>
+    <!-- Row 7 -->
+    <rect x="20" y="274" width="920" height="26" fill="#ffffff" fill-opacity="0.02"/>
+    <text x="40" y="292" fill="#cccccc">007</text>
+    <text x="110" y="292" fill="#cccccc">fn validate(data: &amp;[u8]) → bool</text>
+    <text x="340" y="292" fill="#9b7dff">type_check</text>
+    <rect x="500" y="280" width="82" height="16" rx="3" fill="#EF9F27" fill-opacity="0.2"/>
+    <text x="508" y="292" fill="#EF9F27">FAIL-RETRY</text>
+    <text x="680" y="292" fill="#EF9F27">6.3ms</text>
+    <text x="800" y="292" fill="#EF9F27">mismatch → patched ✓</text>
+    <!-- Row 8 -->
+    <text x="40" y="318" fill="#cccccc">008</text>
+    <text x="110" y="318" fill="#cccccc">struct Config { port: u16, ... }</text>
+    <text x="340" y="318" fill="#9b7dff">dep_graph</text>
+    <rect x="500" y="306" width="48" height="16" rx="3" fill="#1D9E75" fill-opacity="0.2"/>
+    <text x="508" y="318" fill="#1D9E75">PASS</text>
+    <text x="680" y="318" fill="#555555">3.0ms</text>
+    <text x="800" y="318" fill="#555555">no cycles ✓</text>
+    <!-- Row 9 -->
+    <rect x="20" y="326" width="920" height="26" fill="#ffffff" fill-opacity="0.02"/>
+    <text x="40" y="344" fill="#cccccc">009</text>
+    <text x="110" y="344" fill="#cccccc">match event { Close =&gt; cleanup() }</text>
+    <text x="340" y="344" fill="#9b7dff">syntax_check</text>
+    <rect x="500" y="332" width="48" height="16" rx="3" fill="#1D9E75" fill-opacity="0.2"/>
+    <text x="508" y="344" fill="#1D9E75">PASS</text>
+    <text x="680" y="344" fill="#555555">1.5ms</text>
+    <text x="800" y="344" fill="#555555">exhaustive ✓</text>
+    <!-- Row 10 -->
+    <text x="40" y="370" fill="#cccccc">010</text>
+    <text x="110" y="370" fill="#cccccc">fn shutdown(&amp;mut self) → Result&lt;()&gt;</text>
+    <text x="340" y="370" fill="#9b7dff">io_boundary</text>
+    <rect x="500" y="358" width="68" height="16" rx="3" fill="#4A9FD8" fill-opacity="0.2"/>
+    <text x="508" y="370" fill="#4A9FD8">VERIFIED</text>
+    <text x="680" y="370" fill="#555555">5.2ms</text>
+    <text x="800" y="370" fill="#555555">io safe ✓</text>
+  </g>
+  <!-- Separator -->
+  <line x1="20" y1="400" x2="940" y2="400" stroke="#333" stroke-width="0.5"/>
+  <!-- Summary stats -->
+  <g font-family="monospace" font-size="12">
+    <text x="30" y="425" fill="#555555">Summary:</text>
+    <text x="120" y="425" fill="#1D9E75">6 PASS</text>
+    <text x="200" y="425" fill="#EF9F27">2 FAIL-RETRY</text>
+    <text x="320" y="425" fill="#4A9FD8">2 VERIFIED</text>
+    <text x="440" y="425" fill="#555555">│ Avg latency: 3.7ms │ P99: 7.8ms</text>
+  </g>
+  <!-- Progress bar -->
+  <text x="30" y="455" font-family="monospace" font-size="12" fill="#555555">Fast path rate:</text>
+  <rect x="160" y="444" width="300" height="14" rx="3" fill="#1a1a2e"/>
+  <rect x="160" y="444" width="292" height="14" rx="3" fill="#1D9E75" fill-opacity="0.4"/>
+  <text x="475" y="455" font-family="monospace" font-size="12" fill="#1D9E75">97.3%</text>
+  <!-- Bottom bar -->
+  <rect x="0" y="540" width="960" height="40" fill="#111128" opacity="0.7"/>
+  <g font-family="monospace" font-size="12" fill="#555555">
+    <text x="30" y="565">F1 Help</text>
+    <text x="130" y="565">F2 Chat</text>
+    <text x="230" y="565">F3 Gates</text>
+    <text x="340" y="565" fill="#7c5cfc">F4 Trace</text>
+    <text x="450" y="565">F5 World</text>
+    <text x="830" y="565">q Quit</text>
+  </g>
+</svg>

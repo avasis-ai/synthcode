@@ -310,7 +310,7 @@ async function buildInspector() {
     }
   }
   renderer.root.add(root)
-  if (inspectorPhase === 0) runInspection()
+  if (inspectorPhase === 0) runInspection().catch(console.error)
 }
 
 async function runInspection() {
@@ -792,7 +792,7 @@ async function handleKey(key: KeyEvent) {
       const known = new Set(inspectorModels.map(m => m.ollamaName.split(":")[0]))
       const extras = inst.filter(n => !known.has(n.split(":")[0]))
       const sel = [...inspectorModels.filter(m => m.fitsOnMachine || m.hardcoreMode), ...extras.map(n => ({ ollamaName: n, fitsOnMachine: true, hardcoreMode: true } as ModelCandidate))]
-      inspectorIndex = Math.min(sel.length - 1, inspectorIndex + 1); buildInspector()
+      inspectorIndex = sel.length === 0 ? 0 : Math.min(sel.length - 1, inspectorIndex + 1); buildInspector()
     } else if (key.name === "return") {
       const inst = profile?.ollama.models ?? []
       const known = new Set(inspectorModels.map(m => m.ollamaName.split(":")[0]))
@@ -829,7 +829,7 @@ async function handleKey(key: KeyEvent) {
         ? (profile?.ollama.models || [])
         : PROVIDERS.reduce<string[]>((a, p) => p.base === apiBase ? p.models : a, PROVIDERS[0].models)
       if (key.name === "up") { modelPickerIdx = Math.max(0, modelPickerIdx - 1); buildModeScreen(); return }
-      if (key.name === "down") { modelPickerIdx = Math.min(allModels.length - 1, modelPickerIdx + 1); buildModeScreen(); return }
+      if (key.name === "down") { modelPickerIdx = allModels.length === 0 ? 0 : Math.min(allModels.length - 1, modelPickerIdx + 1); buildModeScreen(); return }
       if (key.name === "return") {
         if (allModels[modelPickerIdx]) {
           model = allModels[modelPickerIdx]
@@ -843,7 +843,7 @@ async function handleKey(key: KeyEvent) {
     if (commandPalette) {
       if (key.name === "escape") { closeCommandPalette(); return }
       if (key.name === "up") { commandIndex = Math.max(0, commandIndex - 1); buildModeScreen(); return }
-      if (key.name === "down") { commandIndex = Math.min(commandList.length - 1, commandIndex + 1); buildModeScreen(); return }
+      if (key.name === "down") { commandIndex = commandList.length === 0 ? 0 : Math.min(commandList.length - 1, commandIndex + 1); buildModeScreen(); return }
       if (key.name === "return") { const s = commandList[commandIndex]; if (s) { closeCommandPalette(); executeCommand(s.cmd) } return }
       if (key.name === "backspace" || key.name === "delete") { commandFilter = commandFilter.slice(0, -1); updateCommandList(); buildModeScreen(); return }
       if (key.sequence && key.sequence.length === 1 && !key.ctrl) { commandFilter += key.sequence; updateCommandList(); buildModeScreen(); return }
@@ -860,13 +860,13 @@ async function handleKey(key: KeyEvent) {
       if (gateAnimating) return
       if (key.name === "r") { gateFilter = gateFilter === "FAIL-RETRY" ? "" : "FAIL-RETRY"; buildModeScreen() }
       else if (key.name === "c") { gateFilter = ""; buildModeScreen() }
-      else if (key.name === "return") { animateGateTrace() }
+      else if (key.name === "return") { animateGateTrace().catch(console.error) }
       else if (key.name === "escape") { activeMode = "chat"; buildModeScreen() }
       return
     }
     if (activeMode === "playground") {
       if (key.name === "escape") { activeMode = "chat"; buildModeScreen() }
-      else if (key.name === "return" && !playgroundRunning) { runPlayground() }
+      else if (key.name === "return" && !playgroundRunning) { runPlayground().catch(console.error) }
       return
     }
     if (activeMode === "world" || activeMode === "trust") {
@@ -887,10 +887,10 @@ async function handleKey(key: KeyEvent) {
       const text = inputText.trim()
       if (!text) return
       const tc = parseToolCall(text)
-      if (tc) { inputText = ""; executeToolInChat(tc.tool, tc.args); return }
+      if (tc) { inputText = ""; executeToolInChat(tc.tool, tc.args).catch(console.error); return }
       if (text.startsWith("/")) { inputText = ""; if (text === "/commands") { buildCommandPalette(); return } executeCommand(text); return }
       if (text === "?") { inputText = ""; buildCommandPalette(); return }
-      sendChat(text)
+      sendChat(text).catch(console.error)
     } else if (key.name === "backspace" || key.name === "delete") { inputText = inputText.slice(0, -1); buildModeScreen() }
     else if (key.name === "escape") { inputText = ""; buildModeScreen() }
     else if (key.sequence && key.sequence.length === 1 && !key.ctrl) { inputText += key.sequence; buildModeScreen() }

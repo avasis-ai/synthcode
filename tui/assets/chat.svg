@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680">
+  <defs>
+    <filter id="chatGlow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="960" height="680" fill="#0d0d1a"/>
+  <!-- Terminal title bar -->
+  <rect x="0" y="0" width="960" height="36" fill="#111128" opacity="0.9"/>
+  <circle cx="24" cy="18" r="7" fill="#FF5F57"/>
+  <circle cx="46" cy="18" r="7" fill="#FFBD2E"/>
+  <circle cx="68" cy="18" r="7" fill="#28C840"/>
+  <text x="480" y="24" text-anchor="middle" fill="#555" font-family="monospace" font-size="13">synthcode — chat</text>
+  <!-- Mode indicator -->
+  <rect x="20" y="48" width="60" height="20" rx="3" fill="#7c5cfc" fill-opacity="0.25"/>
+  <text x="50" y="62" text-anchor="middle" font-family="monospace" font-size="11" fill="#7c5cfc">CHAT</text>
+  <text x="100" y="62" font-family="monospace" font-size="11" fill="#555">Session #2847 • claude-sonnet-4-20250514</text>
+  <!-- User message -->
+  <rect x="20" y="80" width="920" height="36" rx="5" fill="#7c5cfc" fill-opacity="0.08"/>
+  <text x="35" y="103" font-family="monospace" font-size="13" fill="#7c5cfc" font-weight="bold">You:</text>
+  <text x="82" y="103" font-family="monospace" font-size="13" fill="#cccccc">build a snake game</text>
+  <!-- SC Response header -->
+  <rect x="20" y="130" width="920" height="30" rx="5" fill="#1D9E75" fill-opacity="0.06"/>
+  <text x="35" y="150" font-family="monospace" font-size="13" fill="#1D9E75" font-weight="bold">SC:</text>
+  <text x="65" y="150" font-family="monospace" font-size="12" fill="#555">I'll build a snake game with OpenTUI. Let me set up the project structure.</text>
+  <!-- Gate badges row -->
+  <rect x="40" y="170" width="170" height="22" rx="4" fill="#1D9E75" fill-opacity="0.12" stroke="#1D9E75" stroke-width="0.5" stroke-opacity="0.3"/>
+  <text x="50" y="185" font-family="monospace" font-size="11" fill="#1D9E75">type_check</text>
+  <text x="128" y="185" font-family="monospace" font-size="11" fill="#1D9E75" font-weight="bold">PASS</text>
+  <text x="168" y="185" font-family="monospace" font-size="10" fill="#555">3ms</text>
+  <rect x="220" y="170" width="170" height="22" rx="4" fill="#1D9E75" fill-opacity="0.12" stroke="#1D9E75" stroke-width="0.5" stroke-opacity="0.3"/>
+  <text x="230" y="185" font-family="monospace" font-size="11" fill="#1D9E75">dep_graph</text>
+  <text x="305" y="185" font-family="monospace" font-size="11" fill="#1D9E75" font-weight="bold">PASS</text>
+  <text x="345" y="185" font-family="monospace" font-size="10" fill="#555">5ms</text>
+  <rect x="400" y="170" width="170" height="22" rx="4" fill="#1D9E75" fill-opacity="0.12" stroke="#1D9E75" stroke-width="0.5" stroke-opacity="0.3"/>
+  <text x="410" y="185" font-family="monospace" font-size="11" fill="#1D9E75">syntax_check</text>
+  <text x="495" y="185" font-family="monospace" font-size="11" fill="#1D9E75" font-weight="bold">PASS</text>
+  <text x="535" y="185" font-family="monospace" font-size="10" fill="#555">2ms</text>
+  <!-- Tool call 1: Write file -->
+  <rect x="40" y="205" width="600" height="80" rx="5" fill="#1a1a2e" stroke="#333" stroke-width="0.5"/>
+  <rect x="40" y="205" width="600" height="24" rx="5" fill="#333" fill-opacity="0.3"/>
+  <rect x="40" y="221" width="600" height="8" fill="#1a1a2e"/>
+  <text x="52" y="222" font-family="monospace" font-size="11" fill="#4A9FD8">📝 Write</text>
+  <text x="120" y="222" font-family="monospace" font-size="11" fill="#cccccc">src/main.rs</text>
+  <rect x="490" y="209" width="70" height="16" rx="3" fill="#1D9E75" fill-opacity="0.15"/>
+  <text x="498" y="221" font-family="monospace" font-size="10" fill="#1D9E75">✓ PASS</text>
+  <rect x="570" y="209" width="60" height="16" rx="3" fill="#555" fill-opacity="0.15"/>
+  <text x="578" y="221" font-family="monospace" font-size="10" fill="#555">4 gates</text>
+  <text x="52" y="248" font-family="monospace" font-size="11" fill="#555">  1 │ use opentui::prelude::*;</text>
+  <text x="52" y="263" font-family="monospace" font-size="11" fill="#555">  2 │ use opentui::widgets::canvas::{Canvas, Shape};</text>
+  <text x="52" y="278" font-family="monospace" font-size="11" fill="#555">  3 │ mod snake; mod render; mod game;</text>
+  <!-- Tool call 2: Write file -->
+  <rect x="40" y="295" width="600" height="80" rx="5" fill="#1a1a2e" stroke="#333" stroke-width="0.5"/>
+  <rect x="40" y="295" width="600" height="24" rx="5" fill="#333" fill-opacity="0.3"/>
+  <rect x="40" y="311" width="600" height="8" fill="#1a1a2e"/>
+  <text x="52" y="312" font-family="monospace" font-size="11" fill="#4A9FD8">📝 Write</text>
+  <text x="120" y="312" font-family="monospace" font-size="11" fill="#cccccc">src/snake.rs</text>
+  <rect x="490" y="299" width="70" height="16" rx="3" fill="#1D9E75" fill-opacity="0.15"/>
+  <text x="498" y="311" font-family="monospace" font-size="10" fill="#1D9E75">✓ PASS</text>
+  <rect x="570" y="299" width="60" height="16" rx="3" fill="#555" fill-opacity="0.15"/>
+  <text x="578" y="311" font-family="monospace" font-size="10" fill="#555">3 gates</text>
+  <text x="52" y="338" font-family="monospace" font-size="11" fill="#555">  1 │ pub struct Snake { body: Vec&lt;(i16,i16)&gt;, dir: Dir }</text>
+  <text x="52" y="353" font-family="monospace" font-size="11" fill="#555">  2 │ impl Snake { pub fn new() -&gt; Self { ... } }</text>
+  <text x="52" y="368" font-family="monospace" font-size="11" fill="#555">  3 │ pub fn tick(&amp;mut self, food: (i16,i16)) -&gt; bool { ... }</text>
+  <!-- Tool call 3: Write file with FAIL-RETRY -->
+  <rect x="40" y="385" width="600" height="80" rx="5" fill="#1a1a2e" stroke="#EF9F27" stroke-width="0.8" stroke-opacity="0.5"/>
+  <rect x="40" y="385" width="600" height="24" rx="5" fill="#EF9F27" fill-opacity="0.08"/>
+  <rect x="40" y="401" width="600" height="8" fill="#1a1a2e"/>
+  <text x="52" y="402" font-family="monospace" font-size="11" fill="#4A9FD8">📝 Write</text>
+  <text x="120" y="402" font-family="monospace" font-size="11" fill="#cccccc">src/render.rs</text>
+  <rect x="470" y="389" width="100" height="16" rx="3" fill="#EF9F27" fill-opacity="0.15"/>
+  <text x="478" y="401" font-family="monospace" font-size="10" fill="#EF9F27">⟳ RETRY→PASS</text>
+  <rect x="580" y="389" width="50" height="16" rx="3" fill="#555" fill-opacity="0.15"/>
+  <text x="588" y="401" font-family="monospace" font-size="10" fill="#555">6 gates</text>
+  <text x="52" y="428" font-family="monospace" font-size="11" fill="#555">  1 │ pub fn render_grid(snake: &amp;Snake, food: (i16,i16)) {</text>
+  <text x="52" y="443" font-family="monospace" font-size="11" fill="#555">  2 │   // io_boundary gate: fixed unsafe read on retry</text>
+  <text x="52" y="458" font-family="monospace" font-size="11" fill="#555">  3 │   canvas.draw(&amp;snake.body.iter().collect::&lt;Vec&lt;_&gt;&gt;());</text>
+  <!-- Summary -->
+  <rect x="20" y="480" width="920" height="24" rx="3" fill="#1D9E75" fill-opacity="0.06"/>
+  <text x="35" y="497" font-family="monospace" font-size="12" fill="#1D9E75">✓ 3 files written • 13 gates passed (1 retry) • Total: 34ms gate time • Ready to run</text>
+  <!-- SC final message -->
+  <text x="35" y="530" font-family="monospace" font-size="13" fill="#1D9E75" font-weight="bold">SC:</text>
+  <text x="65" y="530" font-family="monospace" font-size="12" fill="#cccccc">Snake game is ready. Run with `cargo run` — use arrow keys to control.</text>
+  <!-- Input box -->
+  <rect x="20" y="560" width="920" height="40" rx="5" fill="#1a1a2e" stroke="#7c5cfc" stroke-width="1" stroke-opacity="0.4"/>
+  <text x="35" y="585" font-family="monospace" font-size="13" fill="#7c5cfc">❯</text>
+  <text x="55" y="585" font-family="monospace" font-size="13" fill="#cccccc">add score tracking and high score persistence</text>
+  <rect x="437" y="571" width="8" height="17" fill="#cccccc">
+    <animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/>
+  </rect>
+  <!-- Status bar -->
+  <rect x="0" y="640" width="960" height="40" fill="#111128" opacity="0.7"/>
+  <g font-family="monospace" font-size="12" fill="#555555">
+    <text x="30" y="665">F1 Help</text>
+    <text x="130" y="665" fill="#7c5cfc">F2 Chat</text>
+    <text x="230" y="665">F3 Gates</text>
+    <text x="340" y="665">F4 Trace</text>
+    <text x="450" y="665">F5 World</text>
+    <text x="600" y="665" fill="#1D9E75">● Connected</text>
+    <text x="830" y="665">q Quit</text>
+  </g>
+</svg>

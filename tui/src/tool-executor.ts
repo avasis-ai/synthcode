@@ -304,18 +304,26 @@ export async function executeToolCall(
     case "read":
       return readFile(args)
     case "write": {
-      const parsed = JSON.parse(args)
-      return writeFile(parsed.path, parsed.content)
+      try {
+        const parsed = JSON.parse(args)
+        return writeFile(parsed.path, parsed.content)
+      } catch (e: any) {
+        return { tool: "write", success: false, output: e?.message || "Invalid write arguments", gateVerdict: null, durationMs: 0 }
+      }
     }
     case "ls":
       return listFiles(args || ".")
     case "edit": {
-      const parsed = JSON.parse(args)
-      const resolved = path.resolve(parsed.path)
-      const content = fs.readFileSync(resolved, "utf-8")
-      const lines = content.split("\n")
-      const snippet = lines.slice(0, 20).join("\n") + "\n// ... existing code ...\n"
-      return fastApply(parsed.path, parsed.instructions, snippet)
+      try {
+        const parsed = JSON.parse(args)
+        const resolved = path.resolve(parsed.path)
+        const content = fs.readFileSync(resolved, "utf-8")
+        const lines = content.split("\n")
+        const snippet = lines.slice(0, 20).join("\n") + "\n// ... existing code ...\n"
+        return fastApply(parsed.path, parsed.instructions, snippet)
+      } catch (e: any) {
+        return { tool: "edit", success: false, output: e?.message || "Invalid edit arguments", gateVerdict: null, durationMs: 0 }
+      }
     }
     case "search":
       return warpGrep(args, cwd || ".")

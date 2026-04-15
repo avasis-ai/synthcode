@@ -48,7 +48,7 @@ export function buildWorldModel(
   const maxBytes = 2 * 1024 * 1024
   const pct = totalBytes / maxBytes
   const barWidth = Math.max(10, width - 34)
-  const filled = Math.floor(barWidth * pct)
+  const filled = Math.min(barWidth, Math.floor(barWidth * pct))
   const bar = "█".repeat(filled) + "░".repeat(barWidth - filled)
 
   root.add(new TextRenderable(renderer, {

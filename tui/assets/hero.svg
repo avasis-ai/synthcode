@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400">
+  <defs>
+    <radialGradient id="heroGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7c5cfc" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#0d0d1a" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#7c5cfc" stroke-width="0.3" opacity="0.08"/>
+    </pattern>
+    <pattern id="circuit" width="200" height="200" patternUnits="userSpaceOnUse">
+      <g stroke="#7c5cfc" stroke-width="0.4" fill="none" opacity="0.06">
+        <path d="M 0 100 H 60 L 70 90 H 130 L 140 100 H 200"/>
+        <path d="M 100 0 V 50 L 90 60 V 140 L 100 150 V 200"/>
+        <circle cx="60" cy="100" r="3" fill="#7c5cfc"/>
+        <circle cx="140" cy="100" r="3" fill="#7c5cfc"/>
+        <circle cx="100" cy="50" r="3" fill="#7c5cfc"/>
+        <circle cx="100" cy="150" r="3" fill="#7c5cfc"/>
+      </g>
+    </pattern>
+    <filter id="heroTextGlow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="heroSoftGlow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7c5cfc" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#7c5cfc" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#7c5cfc" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Background layers -->
+  <rect width="1200" height="400" fill="#0d0d1a"/>
+  <rect width="1200" height="400" fill="url(#grid)"/>
+  <rect width="1200" height="400" fill="url(#circuit)"/>
+  <rect width="1200" height="400" fill="url(#heroGlow)"/>
+  <!-- Decorative floating particles -->
+  <g fill="#7c5cfc" opacity="0.15">
+    <circle cx="150" cy="80" r="1.5"><animate attributeName="cy" values="80;70;80" dur="4s" repeatCount="indefinite"/></circle>
+    <circle cx="320" cy="300" r="1"><animate attributeName="cy" values="300;310;300" dur="3.5s" repeatCount="indefinite"/></circle>
+    <circle cx="900" cy="100" r="1.5"><animate attributeName="cy" values="100;90;100" dur="5s" repeatCount="indefinite"/></circle>
+    <circle cx="1050" cy="280" r="1"><animate attributeName="cy" values="280;290;280" dur="3s" repeatCount="indefinite"/></circle>
+    <circle cx="600" cy="350" r="1.2"><animate attributeName="cy" values="350;340;350" dur="4.5s" repeatCount="indefinite"/></circle>
+  </g>
+  <!-- Logo -->
+  <text x="600" y="130" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-size="60" font-weight="bold" fill="#7c5cfc" filter="url(#heroTextGlow)" letter-spacing="12">
+    SynthCode
+  </text>
+  <!-- Subtitle -->
+  <text x="600" y="175" text-anchor="middle" font-family="'Courier New', Courier, monospace" font-size="18" fill="#9b7dff" letter-spacing="5" filter="url(#heroSoftGlow)">
+    Neural Intuition × Symbolic Precision
+  </text>
+  <!-- Decorative line -->
+  <line x1="300" y1="210" x2="900" y2="210" stroke="url(#lineGrad)" stroke-width="1"/>
+  <!-- Feature badges -->
+  <g font-family="monospace" font-size="13">
+    <!-- Gate Badge -->
+    <rect x="320" y="240" width="140" height="32" rx="4" fill="#1D9E75" fill-opacity="0.15" stroke="#1D9E75" stroke-width="0.8" stroke-opacity="0.5"/>
+    <text x="390" y="261" text-anchor="middle" fill="#1D9E75">6 Symbolic Gates</text>
+    <!-- Latency Badge -->
+    <rect x="490" y="240" width="160" height="32" rx="4" fill="#4A9FD8" fill-opacity="0.15" stroke="#4A9FD8" stroke-width="0.8" stroke-opacity="0.5"/>
+    <text x="570" y="261" text-anchor="middle" fill="#4A9FD8">3-8ms Consistency</text>
+    <!-- Coverage Badge -->
+    <rect x="680" y="240" width="160" height="32" rx="4" fill="#7c5cfc" fill-opacity="0.15" stroke="#7c5cfc" stroke-width="0.8" stroke-opacity="0.5"/>
+    <text x="760" y="261" text-anchor="middle" fill="#7c5cfc">97.3% Fast Path</text>
+  </g>
+  <!-- Bottom info -->
+  <text x="600" y="320" text-anchor="middle" font-family="monospace" font-size="13" fill="#555555">
+    AI-Powered Code Generation with Real-Time Symbolic Verification
+  </text>
+  <!-- Corner accents -->
+  <g stroke="#7c5cfc" stroke-width="1.5" opacity="0.2">
+    <polyline points="20,40 20,20 40,20" fill="none"/>
+    <polyline points="1160,20 1180,20 1180,40" fill="none"/>
+    <polyline points="20,360 20,380 40,380" fill="none"/>
+    <polyline points="1160,380 1180,380 1180,360" fill="none"/>
+  </g>
+</svg>
