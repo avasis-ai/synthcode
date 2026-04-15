@@ -122,7 +122,7 @@ let gateLiveIdx = -1
 let gateAnimating = false
 
 let cloudProviderIdx = 0
-let cloudKeyInput = ""
+let cloudKeyInput = process.env.SYNTHCODE_API_KEY || ""
 let cloudModelIdx = 0
 
 let modelPicker = false
@@ -917,8 +917,8 @@ async function main() {
   termHeight = renderer.terminalHeight
   renderer.setBackgroundColor("#0d0d1a")
   renderer.keyInput.on("keypress", handleKey)
-  renderer.keyInput.on("paste", (e: any) => {
-    const text = typeof e.text === "string" ? e.text : new TextDecoder().decode(e.bytes).replace(/\r?\n/g, "")
+  renderer.keyInput.on("paste", (e: { bytes: Uint8Array }) => {
+    const text = new TextDecoder().decode(e.bytes).replace(/[\r\n]/g, "")
     if (!text) return
     if (currentScreen === "cloud-setup") {
       cloudKeyInput += text
