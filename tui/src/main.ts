@@ -198,27 +198,37 @@ function buildCloudSetup() {
   currentScreen = "cloud-setup"
   const c = new BoxRenderable(renderer, {
     id: "cs", flexDirection: "column", width: "auto", height: "auto", flexGrow: 1,
-    justifyContent: "center", alignItems: "center", gap: 1,
+    padding: 4, gap: 0,
   })
-  c.add(new TextRenderable(renderer, { id: "cs-t", content: "Cloud Provider Setup", fg: "white", attributes: 1 }))
-  c.add(new BoxRenderable(renderer, { id: "cs-1", height: 1 }))
-  c.add(new TextRenderable(renderer, { id: "cs-d", content: "Select a provider and enter your API key", fg: "#888888" }))
-  c.add(new BoxRenderable(renderer, { id: "cs-2", height: 1 }))
+  c.add(new TextRenderable(renderer, { id: "cs-t", content: "  Cloud Provider Setup", fg: "white", attributes: 1 }))
+  c.add(new TextRenderable(renderer, { id: "cs-1", content: "  Select a provider and enter your API key", fg: "#666666" }))
+  c.add(new TextRenderable(renderer, { id: "cs-sep1", content: "  " + "\u2500".repeat(40), fg: "#333333" }))
   PROVIDERS.forEach((p, i) => {
+    const selected = i === cloudProviderIdx
+    const marker = selected ? " > " : "   "
+    const check = selected ? " [OK]" : ""
     c.add(new TextRenderable(renderer, {
       id: `cs-p-${i}`,
-      content: `${i === cloudProviderIdx ? ">" : " "} ${p.name.padEnd(16)} ${p.models[0]}`,
-      fg: i === cloudProviderIdx ? "#00e5a0" : "#888888",
+      content: `${marker}${p.name.padEnd(18)} ${p.models[0]}${check}`,
+      fg: selected ? "#00e5a0" : "#888888",
+      attributes: selected ? 1 : 0,
     }))
   })
-  c.add(new BoxRenderable(renderer, { id: "cs-3", height: 1 }))
-  c.add(new TextRenderable(renderer, { id: "cs-kl", content: "API Key:", fg: "#888888" }))
+  c.add(new TextRenderable(renderer, { id: "cs-sep2", content: "  " + "\u2500".repeat(40), fg: "#333333" }))
+  c.add(new TextRenderable(renderer, { id: "cs-kl", content: "  API Key:", fg: "#888888" }))
   const maskedKey = cloudKeyInput.length > 8
     ? cloudKeyInput.slice(0, 4) + "..." + cloudKeyInput.slice(-4)
-    : cloudKeyInput + (cloudKeyInput.length === 0 ? "paste key here" : "")
-  c.add(new TextRenderable(renderer, { id: "cs-kv", content: `  ${maskedKey}`, fg: cloudKeyInput ? "#00cc66" : "#555555" }))
-  c.add(new BoxRenderable(renderer, { id: "cs-4", height: 1 }))
-  c.add(new TextRenderable(renderer, { id: "cs-n", content: "Up/Down: provider  Type: paste key  Enter: continue  Esc: back", fg: "#555555" }))
+    : cloudKeyInput.length > 0 ? cloudKeyInput : "(paste or type your key)"
+  c.add(new TextRenderable(renderer, { id: "cs-kv", content: `  ${maskedKey}`, fg: cloudKeyInput ? "#00cc66" : "#444444" }))
+
+  const canContinue = cloudKeyInput.length > 0
+  c.add(new TextRenderable(renderer, { id: "cs-sep3", content: "  " + "\u2500".repeat(40), fg: "#333333" }))
+  if (canContinue) {
+    c.add(new TextRenderable(renderer, { id: "cs-go", content: "  Enter: continue to model selection", fg: "#00e5a0" }))
+  } else {
+    c.add(new TextRenderable(renderer, { id: "cs-go", content: "  Type or paste your API key, then press Enter", fg: "#cc6600" }))
+  }
+  c.add(new TextRenderable(renderer, { id: "cs-n", content: "  Up/Down: provider  Esc: back", fg: "#444444" }))
   renderer.root.add(c)
 }
 
@@ -228,19 +238,23 @@ function buildCloudModels() {
   const provider = PROVIDERS[cloudProviderIdx]
   const c = new BoxRenderable(renderer, {
     id: "cm", flexDirection: "column", width: "auto", height: "auto", flexGrow: 1,
-    justifyContent: "center", alignItems: "center", gap: 1,
+    padding: 4, gap: 0,
   })
-  c.add(new TextRenderable(renderer, { id: "cm-t", content: `Select Model - ${provider.name}`, fg: "white", attributes: 1 }))
-  c.add(new BoxRenderable(renderer, { id: "cm-1", height: 1 }))
+  c.add(new TextRenderable(renderer, { id: "cm-t", content: `  Select Model - ${provider.name}`, fg: "white", attributes: 1 }))
+  c.add(new TextRenderable(renderer, { id: "cm-d", content: `  Provider: ${provider.name}  Key: ${apiKey.slice(0, 4)}...${apiKey.slice(-4)}`, fg: "#666666" }))
+  c.add(new TextRenderable(renderer, { id: "cm-sep1", content: "  " + "\u2500".repeat(40), fg: "#333333" }))
   provider.models.forEach((m, i) => {
+    const selected = i === cloudModelIdx
     c.add(new TextRenderable(renderer, {
       id: `cm-m-${i}`,
-      content: `${i === cloudModelIdx ? ">" : " "} ${m}`,
-      fg: i === cloudModelIdx ? "#00e5a0" : "#888888",
+      content: `  ${selected ? ">" : " "} ${m}`,
+      fg: selected ? "#00e5a0" : "#888888",
+      attributes: selected ? 1 : 0,
     }))
   })
-  c.add(new BoxRenderable(renderer, { id: "cm-2", height: 1 }))
-  c.add(new TextRenderable(renderer, { id: "cm-n", content: "Up/Down: select  Enter: start  Esc: back", fg: "#555555" }))
+  c.add(new TextRenderable(renderer, { id: "cm-sep2", content: "  " + "\u2500".repeat(40), fg: "#333333" }))
+  c.add(new TextRenderable(renderer, { id: "cm-go", content: `  Enter: start with ${provider.models[cloudModelIdx]}`, fg: "#00e5a0" }))
+  c.add(new TextRenderable(renderer, { id: "cm-n", content: "  Up/Down: select  Esc: back", fg: "#444444" }))
   renderer.root.add(c)
 }
 
