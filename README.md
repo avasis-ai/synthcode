@@ -382,6 +382,17 @@ import {
 | permissions/ | 74 | Pattern-based allow/deny/ask engine |
 | cost/ | 115 | Per-model cost tracking with pricing table |
 
+## SynthCode TUI
+
+Premium neurosymbolic control plane. 6 screen modes, agentic chat with inline gate badges, multi-provider support. Built with OpenTUI.
+
+```bash
+npm i -g @avasis-ai/synthcode-tui
+SYNTHCODE_API_KEY="your-key" synthcode-tui
+```
+
+See [`tui/README.md`](tui/README.md) for full documentation, screenshots, and architecture diagrams.
+
 ## Contributing
 
 PRs welcome. MIT licensed. Build whatever you want.
