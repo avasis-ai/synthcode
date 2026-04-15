@@ -14,8 +14,6 @@ $$\   $$ |$$ |  $$ |$$ |  $$ | $$ |$$\ $$ |  $$ |$$ |  $$\ $$ |  $$ |$$ |  $$ |$
            \______/                                                                      
 </pre>
 
-<img src="tui/assets/logo.svg" width="600" alt="SynthCode" />
-
 <br/>
 
 <h3>Neural Intuition x Symbolic Precision</h3>
