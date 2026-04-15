@@ -917,6 +917,17 @@ async function main() {
   termHeight = renderer.terminalHeight
   renderer.setBackgroundColor("#0d0d1a")
   renderer.keyInput.on("keypress", handleKey)
+  renderer.keyInput.on("paste", (e: any) => {
+    const text = typeof e.text === "string" ? e.text : new TextDecoder().decode(e.bytes).replace(/\r?\n/g, "")
+    if (!text) return
+    if (currentScreen === "cloud-setup") {
+      cloudKeyInput += text
+      buildCloudSetup()
+    } else if (currentScreen === "chat" && !overlayVisible) {
+      inputText += text
+      buildModeScreen()
+    }
+  })
   renderer.on("resize", (w: number, h: number) => { termWidth = w; termHeight = h; if (currentScreen === "chat") buildModeScreen() })
   buildSplash()
 }
