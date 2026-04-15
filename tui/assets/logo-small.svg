@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="100" viewBox="0 0 400 100">
+  <defs>
+    <filter id="glowPurple" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#7c5cfc" flood-opacity="0.5" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glowGreen" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feFlood flood-color="#1D9E75" flood-opacity="0.6" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glowText" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feFlood flood-color="#7c5cfc" flood-opacity="0.3" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c5cfc"/>
+      <stop offset="50%" stop-color="#9b7dff"/>
+      <stop offset="100%" stop-color="#7c5cfc"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1D9E75"/>
+      <stop offset="100%" stop-color="#2ae8a5"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#ffffff"/>
+      <stop offset="65%" stop-color="#e8e0ff"/>
+      <stop offset="100%" stop-color="#c4b5fd"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="100" rx="6" fill="#0d0d1a"/>
+
+  <!-- Icon -->
+  <g transform="translate(50, 36)">
+    <polygon points="0,-28 24,-14 24,14 0,28 -24,14 -24,-14" fill="none" stroke="url(#iconGrad)" stroke-width="1.5" opacity="0.3"/>
+    <polygon points="0,-22 19,0 0,22 -19,0" fill="none" stroke="url(#iconGrad)" stroke-width="1.8" filter="url(#glowPurple)"/>
+    <!-- Neural nodes top -->
+    <circle cx="0" cy="-12" r="2.5" fill="#7c5cfc" filter="url(#glowPurple)"/>
+    <circle cx="-8" cy="-4" r="2" fill="#9b7dff" opacity="0.8"/>
+    <circle cx="8" cy="-4" r="2" fill="#9b7dff" opacity="0.8"/>
+    <line x1="0" y1="-12" x2="-8" y2="-4" stroke="#9b7dff" stroke-width="0.7" opacity="0.5"/>
+    <line x1="0" y1="-12" x2="8" y2="-4" stroke="#9b7dff" stroke-width="0.7" opacity="0.5"/>
+    <!-- Gate bottom -->
+    <line x1="0" y1="5" x2="0" y2="17" stroke="url(#greenGrad)" stroke-width="1.5" filter="url(#glowGreen)"/>
+    <polyline points="-6,9 -2,14 6,6" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowGreen)"/>
+    <line x1="-10" y1="5" x2="10" y2="5" stroke="#1D9E75" stroke-width="1" opacity="0.5"/>
+  </g>
+
+  <!-- Text -->
+  <text x="90" y="48"
+    font-family="'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="36"
+    font-weight="300"
+    letter-spacing="-0.5"
+    fill="url(#textGrad)"
+    filter="url(#glowText)">
+    Synth
+  </text>
+  <text x="222" y="48"
+    font-family="'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace"
+    font-size="36"
+    font-weight="700"
+    letter-spacing="-1"
+    fill="#7c5cfc"
+    filter="url(#glowText)">
+    Code
+  </text>
+
+  <!-- Tagline -->
+  <text x="90" y="72"
+    font-family="'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="9"
+    font-weight="300"
+    letter-spacing="3"
+    fill="#888888"
+    opacity="0.7">
+    NEURAL INTUITION × SYMBOLIC PRECISION
+  </text>
+</svg>

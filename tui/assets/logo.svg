@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300">
+  <defs>
+    <!-- Glow filters -->
+    <filter id="glowPurple" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feFlood flood-color="#7c5cfc" flood-opacity="0.6" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glowGreen" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#1D9E75" flood-opacity="0.7" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glowText" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#7c5cfc" flood-opacity="0.35" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feFlood flood-color="#7c5cfc" flood-opacity="0.15" result="color"/>
+      <feComposite in="color" in2="blur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Grid pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1a1a35" stroke-width="0.5" opacity="0.6"/>
+    </pattern>
+
+    <!-- Circuit dot pattern -->
+    <pattern id="circuitDots" width="80" height="80" patternUnits="userSpaceOnUse">
+      <circle cx="0" cy="0" r="1" fill="#7c5cfc" opacity="0.12"/>
+      <circle cx="40" cy="40" r="1" fill="#1D9E75" opacity="0.1"/>
+      <circle cx="80" cy="0" r="1" fill="#7c5cfc" opacity="0.12"/>
+      <circle cx="0" cy="80" r="1" fill="#7c5cfc" opacity="0.12"/>
+      <circle cx="80" cy="80" r="1" fill="#7c5cfc" opacity="0.12"/>
+      <line x1="0" y1="0" x2="40" y2="40" stroke="#7c5cfc" stroke-width="0.3" opacity="0.08"/>
+      <line x1="40" y1="40" x2="80" y2="0" stroke="#1D9E75" stroke-width="0.3" opacity="0.06"/>
+    </pattern>
+
+    <!-- Gradient for background -->
+    <radialGradient id="bgGradient" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#141428"/>
+      <stop offset="100%" stop-color="#0d0d1a"/>
+    </radialGradient>
+
+    <!-- Icon gradient -->
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c5cfc"/>
+      <stop offset="50%" stop-color="#9b7dff"/>
+      <stop offset="100%" stop-color="#7c5cfc"/>
+    </linearGradient>
+
+    <!-- Green accent gradient -->
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1D9E75"/>
+      <stop offset="100%" stop-color="#2ae8a5"/>
+    </linearGradient>
+
+    <!-- Text gradient -->
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="35%" stop-color="#ffffff"/>
+      <stop offset="65%" stop-color="#e8e0ff"/>
+      <stop offset="100%" stop-color="#c4b5fd"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="300" fill="url(#bgGradient)"/>
+  <rect width="1200" height="300" fill="url(#grid)"/>
+  <rect width="1200" height="300" fill="url(#circuitDots)"/>
+
+  <!-- Subtle horizontal scan lines -->
+  <g opacity="0.03">
+    <line x1="0" y1="50" x2="1200" y2="50" stroke="#7c5cfc" stroke-width="0.5"/>
+    <line x1="0" y1="100" x2="1200" y2="100" stroke="#7c5cfc" stroke-width="0.5"/>
+    <line x1="0" y1="150" x2="1200" y2="150" stroke="#7c5cfc" stroke-width="0.5"/>
+    <line x1="0" y1="200" x2="1200" y2="200" stroke="#7c5cfc" stroke-width="0.5"/>
+    <line x1="0" y1="250" x2="1200" y2="250" stroke="#7c5cfc" stroke-width="0.5"/>
+  </g>
+
+  <!-- === ICON: Neurosymbolic diamond/hexagon with gate === -->
+  <g transform="translate(190, 108)" filter="url(#softGlow)">
+    <!-- Outer hexagon outline -->
+    <polygon
+      points="0,-48 42,-24 42,24 0,48 -42,24 -42,-24"
+      fill="none"
+      stroke="url(#iconGrad)"
+      stroke-width="2"
+      opacity="0.3"
+    />
+
+    <!-- Inner diamond -->
+    <polygon
+      points="0,-38 33,0 0,38 -33,0"
+      fill="none"
+      stroke="url(#iconGrad)"
+      stroke-width="2.5"
+      filter="url(#glowPurple)"
+    />
+
+    <!-- Neural network nodes (top half - neural) -->
+    <circle cx="0" cy="-22" r="4" fill="#7c5cfc" filter="url(#glowPurple)"/>
+    <circle cx="-14" cy="-8" r="3" fill="#9b7dff" opacity="0.8"/>
+    <circle cx="14" cy="-8" r="3" fill="#9b7dff" opacity="0.8"/>
+    <circle cx="-8" cy="-15" r="2" fill="#9b7dff" opacity="0.5"/>
+    <circle cx="8" cy="-15" r="2" fill="#9b7dff" opacity="0.5"/>
+
+    <!-- Neural connections (top half) -->
+    <line x1="0" y1="-22" x2="-14" y2="-8" stroke="#9b7dff" stroke-width="1" opacity="0.5"/>
+    <line x1="0" y1="-22" x2="14" y2="-8" stroke="#9b7dff" stroke-width="1" opacity="0.5"/>
+    <line x1="0" y1="-22" x2="-8" y2="-15" stroke="#7c5cfc" stroke-width="0.7" opacity="0.4"/>
+    <line x1="0" y1="-22" x2="8" y2="-15" stroke="#7c5cfc" stroke-width="0.7" opacity="0.4"/>
+
+    <!-- Gate/symbolic lines (bottom half) -->
+    <!-- Central vertical gate line -->
+    <line x1="0" y1="8" x2="0" y2="30" stroke="url(#greenGrad)" stroke-width="2" filter="url(#glowGreen)"/>
+
+    <!-- Gate checkmark -->
+    <polyline points="-10,16 -3,24 10,10" fill="none" stroke="#1D9E75" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glowGreen)"/>
+
+    <!-- Horizontal gate bars -->
+    <line x1="-18" y1="8" x2="18" y2="8" stroke="#1D9E75" stroke-width="1.5" opacity="0.6"/>
+    <line x1="-12" y1="22" x2="-4" y2="22" stroke="#1D9E75" stroke-width="1" opacity="0.4"/>
+    <line x1="4" y1="22" x2="12" y2="22" stroke="#1D9E75" stroke-width="1" opacity="0.4"/>
+
+    <!-- Crossbar at equator (divides neural/symbolic) -->
+    <line x1="-30" y1="0" x2="-8" y2="0" stroke="#9b7dff" stroke-width="1" opacity="0.4"/>
+    <line x1="8" y1="0" x2="30" y2="0" stroke="#1D9E75" stroke-width="1" opacity="0.4"/>
+    <circle cx="-8" cy="0" r="1.5" fill="#9b7dff" opacity="0.6"/>
+    <circle cx="8" cy="0" r="1.5" fill="#1D9E75" opacity="0.6"/>
+
+    <!-- Corner accent dots on diamond -->
+    <circle cx="0" cy="-38" r="2" fill="#7c5cfc" opacity="0.7"/>
+    <circle cx="33" cy="0" r="2" fill="#1D9E75" opacity="0.5"/>
+    <circle cx="0" cy="38" r="2" fill="#1D9E75" opacity="0.7"/>
+    <circle cx="-33" cy="0" r="2" fill="#7c5cfc" opacity="0.5"/>
+  </g>
+
+  <!-- === TEXT LOGO === -->
+  <!-- "Synth" part -->
+  <text x="275" y="148"
+    font-family="'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="72"
+    font-weight="300"
+    letter-spacing="-1"
+    fill="url(#textGrad)"
+    filter="url(#glowText)">
+    Synth
+  </text>
+
+  <!-- "Code" part -->
+  <text x="537" y="148"
+    font-family="'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace"
+    font-size="72"
+    font-weight="700"
+    letter-spacing="-2"
+    fill="#7c5cfc"
+    filter="url(#glowText)">
+    Code
+  </text>
+
+  <!-- Accent line under text -->
+  <line x1="275" y1="162" x2="720" y2="162" stroke="url(#iconGrad)" stroke-width="1" opacity="0.25"/>
+  <line x1="275" y1="162" x2="460" y2="162" stroke="url(#greenGrad)" stroke-width="1.5" opacity="0.5"/>
+
+  <!-- === TAGLINE === -->
+  <text x="275" y="195"
+    font-family="'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif"
+    font-size="16"
+    font-weight="300"
+    letter-spacing="6"
+    fill="#888888"
+    opacity="0.8">
+    NEURAL INTUITION × SYMBOLIC PRECISION
+  </text>
+
+  <!-- Decorative corner accents -->
+  <g opacity="0.15">
+    <!-- Top-left -->
+    <line x1="20" y1="20" x2="60" y2="20" stroke="#7c5cfc" stroke-width="1"/>
+    <line x1="20" y1="20" x2="20" y2="60" stroke="#7c5cfc" stroke-width="1"/>
+    <!-- Top-right -->
+    <line x1="1180" y1="20" x2="1140" y2="20" stroke="#1D9E75" stroke-width="1"/>
+    <line x1="1180" y1="20" x2="1180" y2="60" stroke="#1D9E75" stroke-width="1"/>
+    <!-- Bottom-left -->
+    <line x1="20" y1="280" x2="60" y2="280" stroke="#1D9E75" stroke-width="1"/>
+    <line x1="20" y1="280" x2="20" y2="240" stroke="#1D9E75" stroke-width="1"/>
+    <!-- Bottom-right -->
+    <line x1="1180" y1="280" x2="1140" y2="280" stroke="#7c5cfc" stroke-width="1"/>
+    <line x1="1180" y1="280" x2="1180" y2="240" stroke="#7c5cfc" stroke-width="1"/>
+  </g>
+</svg>
