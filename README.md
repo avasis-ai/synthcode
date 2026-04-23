@@ -149,6 +149,96 @@ npx @avasis-ai/synthcode "Refactor this" --ollama qwen3:32b   # local
 npx @avasis-ai/synthcode adapt catalog                         # 30+ models
 ```
 
+## Agent Patterns
+
+SynthCode is designed for autonomous agents that run 24/7. Here are common patterns:
+
+### Error Handling & Resilience
+
+Autonomous agents must handle failures gracefully:
+
+```ts
+import { createResilientTool, ErrorLogger, CircuitBreaker } from "@avasis-ai/synthcode";
+
+// Wrap tools with retry logic and circuit breaking
+const bashTool = createResilientTool(
+  new BashTool(),
+  new ErrorLogger(),
+  new CircuitBreaker(),
+  { maxRetries: 3 }
+);
+
+// The agent continues even when tools fail temporarily
+```
+
+See [examples/error-handling.ts](examples/error-handling.ts) for a complete implementation with:
+- Automatic retry with exponential backoff
+- Circuit breaker pattern for failing tools
+- Structured error logging for debugging
+- Graceful degradation when tools are unavailable
+
+### Continuous Monitoring
+
+Track agent performance over time:
+
+```ts
+const costTracker = new CostTracker();
+const agent = new Agent({
+  model: anthropic("claude-3-5-sonnet-20241022"),
+  tools: [BashTool, FileReadTool],
+  costTracker, // Tracks tokens, cost, and usage metrics
+});
+
+// Get stats anytime
+const stats = costTracker.getStats();
+console.log(`Total cost: $${stats.totalCost}`);
+```
+
+### Memory & Context
+
+Persistent memory for long-running agents:
+
+```ts
+import { SQLiteStore } from "@avasis-ai/synthcode/memory";
+
+const memory = new SQLiteStore({ path: "./agent-memory.db" });
+
+// Agent remembers conversations across restarts
+const agent = new Agent({
+  model: anthropic("claude-3-5-sonnet-20241022"),
+  tools: [BashTool],
+  memory, // Persist context to disk
+});
+```
+
+### Autonomous Loops
+
+Run agents continuously:
+
+```ts
+import { agentLoop } from "@avasis-ai/synthcode";
+
+for await (const result of agentLoop(agent, {
+  maxTurns: 15,
+  timeout: 5 * 60 * 1000, // 5 minute timeout
+  onTurn: async (turn, events) => {
+    // Hook into each turn for monitoring
+    console.log(`Turn ${turn}:`, events.length, "events");
+  }
+})) {
+  if (result.done) break;
+  // Continue loop
+}
+```
+
+### Examples
+
+- [examples/autonomous-agent.ts](examples/autonomous-agent.ts) - CI/CD automation and issue fixing
+- [examples/error-handling.ts](examples/error-handling.ts) - Resilient error handling patterns
+- [examples/coding-agent.ts](examples/coding-agent.ts) - Codebase refactoring
+- [examples/basic.ts](examples/basic.ts) - Simple tool usage
+- [examples/demo.ts](examples/demo.ts) - Full feature demonstration
+
 ## Feature Comparison
 
 | | SynthCode | Claude Code | Cursor | Aider |
