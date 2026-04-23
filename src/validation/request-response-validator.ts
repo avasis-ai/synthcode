@@ -13,8 +13,8 @@ export class RequestResponseValidator {
             if (parsed.success) {
                 return { isValid: true, errors: [], data: parsed.data as T };
             } else {
-                const errorMessages = parsed.error.errors.map(e => 
-                    `${e.path.join('.')}: ${e._message}`
+                const errorMessages = parsed.error.errors.map(e =>
+                    `${e.path.join('.')}: ${e.message}`
                 );
                 return { isValid: false, errors: errorMessages, data: null };
             }

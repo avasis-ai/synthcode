@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 type Handler<T> = (event: T) => Promise<void>;
 
 export class EventBus {
-  private listeners: Map<string, <any, Handler<any>>[]> = new Map();
+  private listeners: Map<string, Handler<any>[]> = new Map();
 
   private constructor() {}
 

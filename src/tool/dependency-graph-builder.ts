@@ -1,4 +1,4 @@
-import { ToolExecutionRecord } from "./types";
+import { ToolExecutionRecord } from "./execution-history.js";
 
 export class DependencyGraph {
     private nodes: Map<string, { name: string; inputs: Set<string>; outputs: Set<string> }>;
@@ -23,16 +23,16 @@ export class DependencyGraph {
         const toolOutputs = new Map<string, string>();
 
         for (const record of records) {
-            const toolId = record.tool_use_id;
-            const toolName = record.tool_name || "UnknownTool";
+            const toolId = record.toolUseId;
+            const toolName = record.toolName || "UnknownTool";
 
             if (!this.nodes.has(toolId)) {
                 this.getNode(toolId, toolName);
             }
 
             // Simulate output capture for dependency tracking
-            if (record.content) {
-                toolOutputs.set(toolId, record.content);
+            if (record.output) {
+                toolOutputs.set(toolId, record.output);
             }
 
             // In a real scenario, we would parse the 'inputs' from the record
@@ -48,12 +48,12 @@ export class DependencyGraph {
             const currentRecord = records[i];
             const nextRecord = records[i + 1];
 
-            const currentToolId = currentRecord.tool_use_id;
-            const nextToolId = nextRecord.tool_use_id;
+            const currentToolId = currentRecord.toolUseId;
+            const nextToolId = nextRecord.toolUseId;
 
             // Heuristic: If the next tool's input seems related to the current tool's output
             // (This is a simplification for the exercise structure)
-            if (currentRecord.content && nextRecord.tool_name) {
+            if (currentRecord.output && nextRecord.toolName) {
                 this.addEdge(currentToolId, nextToolId, "data_flow");
             }
         }

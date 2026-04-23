@@ -1,4 +1,4 @@
-import { Message, UserMessage, AssistantMessage, ToolResultMessage, ContentBlock, TextBlock, ToolUseBlock, ThinkingBlock, LoopEvent } from "./types";
+import { Message, UserMessage, AssistantMessage, ToolResultMessage, ContentBlock, TextBlock, ToolUseBlock, ThinkingBlock, LoopEvent } from "../types.js";
 
 export interface ToolExecutionRecord {
   sessionId: string;
