@@ -262,17 +262,33 @@ for await (const result of agentLoop(agent, {
 
 ## ⚡ SynthCode Pro
 
-**Production-grade neurosymbolic agent framework with 8 verification gates.**
+**8 verification gates that catch AI hallucinations in 7.2ms.**
 
 The OSS version has 6 gates. Pro adds:
-- **Gate 7: Security** — scans for leaked secrets, injection patterns, unsafe eval
-- **Gate 8: Performance** — detects N+1 queries, memory leaks, hot paths
-- **Neurosymbolic Router** — auto-routes tasks between neural and symbolic paths
+- **Gate 7: Self-Consistency** — samples multiple completions, checks agreement
+- **Gate 8: Red-Team Adversarial** — adversarial prompt stress-tests every response
+- **Neurosymbolic Router** — auto-routes between neural and symbolic execution
 - **Knowledge Graph + Episodic Memory** — persistent context across sessions
-- **Production Toolkit** — observability (OpenTelemetry), rate limiting, semantic caching, model fallback chains
+- **Production Toolkit** — OpenTelemetry, rate limiting, semantic caching, fallback chains
 - **5 Agent Templates** — research, coding, support, analysis, multi-agent orchestration
 
-269 tests. Full TypeScript source. $149 one-time. Lifetime updates.
+269 tests passing. Full TypeScript source. Ships on npm (`@avasis-ai/synthcode-pro`).
 
-→ **[Get SynthCode Pro](https://whop.com/checkout/plan_KspZxhIoW87gd)**
+**Plans:**
+| Tier | Price | Includes |
+|------|-------|----------|
+| [Starter](https://whop.com/checkout/plan_Hy5WG4oOZyRHV) | $49 | 6 core gates + 5 templates + docs |
+| [Full Access](https://whop.com/checkout/plan_KspZxhIoW87gd) | $149 | All 8 gates + router + memory + toolkit |
+| [Complete Bundle](https://whop.com/checkout/plan_H1Xjpw7in99e4) | $199 | Pro + 500 Prompts + AI Lab Lifetime |
+
+**Launch promo:** Use `LAUNCH20` for $30 off Full Access → **$119** · `FIRST10` for $75 off → **$74** (first 10 buyers)
+
+→ **[Get SynthCode Pro](https://whop.com/checkout/plan_KspZxhIoW87gd?promo=LAUNCH20)**
+
+---
+
+### More from Avasis
+
+- **[500 AI Agent Prompts](https://whop.com/checkout/plan_NQ8bSG4DerAmZ)** — 500+ production prompts for coding, research, support, data analysis ($9)
+- **[Avasis AI Lab](https://whop.com/checkout/plan_uLqdAkBLRtzS6)** — Free community for AI agent developers
 
