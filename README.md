@@ -257,3 +257,22 @@ for await (const result of agentLoop(agent, {
 [**avasis-ai/synthcode**](https://github.com/avasis-ai/synthcode) -- MIT License -- Built by [Avasis AI](https://github.com/avasis-ai)
 
 </div>
+
+---
+
+## ⚡ SynthCode Pro
+
+**Production-grade neurosymbolic agent framework with 8 verification gates.**
+
+The OSS version has 6 gates. Pro adds:
+- **Gate 7: Security** — scans for leaked secrets, injection patterns, unsafe eval
+- **Gate 8: Performance** — detects N+1 queries, memory leaks, hot paths
+- **Neurosymbolic Router** — auto-routes tasks between neural and symbolic paths
+- **Knowledge Graph + Episodic Memory** — persistent context across sessions
+- **Production Toolkit** — observability (OpenTelemetry), rate limiting, semantic caching, model fallback chains
+- **5 Agent Templates** — research, coding, support, analysis, multi-agent orchestration
+
+269 tests. Full TypeScript source. $149 one-time. Lifetime updates.
+
+→ **[Get SynthCode Pro](https://whop.com/checkout/plan_KspZxhIoW87gd)**
+
